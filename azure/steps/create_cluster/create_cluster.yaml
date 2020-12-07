@@ -8,7 +8,7 @@ steps:
     inputs:
       azureSubscription: $(armServiceConnection)
       scriptType: bash
-      scriptPath: $(_crux_steps_path)/create_cluster_and_refresh_creds/create_cluster_and_refresh_creds.sh
+      scriptPath: $(_crux_steps_path)/create_cluster/create_cluster_and_refresh_creds.sh
       arguments: >
         temp$(Build.BuildID)
         $(rgroup)
