@@ -8,5 +8,5 @@ steps:
     inputs:
       azureSubscription: $(armServiceConnection)
       scriptType: bash
-      scriptPath: $(_crux_steps_path)/delete_cluster/delete_cluster_and_connection.sh
-      arguments: $(_crux_steps_path)/delete_cluster $(cname) $(rgroup) $(devOpsOrg) $(devOpsProject) $(devOpsPatUser) $(devOpsPat) $(k8conn) skip
+      scriptPath: $(_crux_steps_path)/delete_cluster/delete_cluster.sh
+      arguments: $(cname) $(rgroup)
