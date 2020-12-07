@@ -1,0 +1,31 @@
+jobs:
+  - job: publish_docker_images
+    displayName: Docker - publish
+    dependsOn: # you can only publish if docker tests are fine
+      - docker_images_tests
+    condition: and(succeeded(),eq(variables['docker_build_and_push'], true)) # we push only if explicitely specified by user
+    variables: #push as latest if no tag specified
+      crux.tag: $[coalesce(variables['docker_tag'], 'latest')]
+    steps:
+      - checkout: crux
+        displayName: CRUX clone
+      - task: Docker@2
+        displayName: Login to Dockerhub
+        inputs:
+          command: login
+          containerRegistry: cruxDockerHubServiceConnection
+      - template: steps/build_and_push_step.yaml
+        parameters:
+          Dockerfile: Dockerfile
+          repository: gabrielstar/crux-base
+          tag: $(crux.tag)
+      - template: steps/build_and_push_step.yaml
+        parameters:
+          Dockerfile: Dockerfile-master
+          repository: gabrielstar/crux-master
+          tag: $(crux.tag)
+      - template: steps/build_and_push_step.yaml
+        parameters:
+          Dockerfile: Dockerfile-slave
+          repository: gabrielstar/crux-slave
+          tag: $(crux.tag)

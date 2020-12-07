@@ -1,0 +1,10 @@
+parameters:
+  timeoutInMinutes: 5
+steps:
+  - task: PublishPipelineArtifact@1
+    condition: not(eq(variables.archive_log, false))
+    displayName: Archive Log
+    timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+    inputs:
+      path: $(log)
+      artifact: jmeter.log

@@ -1,0 +1,14 @@
+
+{
+  "resource": {
+    "id": "org",
+    "type": "endpoint",
+    "name": ""
+  },
+  "pipelines": [],
+  "allPipelines": {
+    "authorized": true,
+    "authorizedBy": null,
+    "authorizedOn": null
+  }
+}

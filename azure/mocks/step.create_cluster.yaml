@@ -1,0 +1,12 @@
+parameters:
+  timeoutInMinutes: 10
+steps:
+  - task: AzureCLI@2
+    condition: and(succeeded(), not(eq(variables.create_cluster, false)))
+    displayName: Create cluster
+    timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+    inputs:
+      azureSubscription: $(armServiceConnection)
+      scriptType: bash
+      scriptPath: $(armModulePath)/create_cluster_and_connection.sh
+      arguments: temp$(Build.BuildID) $(rgroup) $(armModulePath)/k8.json $(clusterNodeSize) $(clusterNodeNumber) perf_$(Build.BuildID)_ cname $(devOpsOrg) $(devOpsProject) $(devOpsPatUser) $(devOpsPat) $(k8conn) $(armModulePath) skip

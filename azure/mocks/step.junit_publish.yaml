@@ -1,0 +1,10 @@
+parameters:
+  timeoutInMinutes: 5
+steps:
+  - task: PublishTestResults@2
+    displayName: Publish JUNIT results
+    timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+    condition: and(not(eq(variables['module.junit.enabled'], false)),not(eq(variables.publish_junit_results, false)))
+    inputs:
+      testResultsFiles: '**/*_TEST.xml'
+      failTaskOnFailedTests: true

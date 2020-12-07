@@ -1,0 +1,12 @@
+parameters:
+  timeoutInMinutes: 5
+steps:
+  - task: AzureCLI@2
+    displayName: Delete cluster
+    timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+    condition: not(eq(variables.delete_cluster, false))
+    inputs:
+      azureSubscription: $(armServiceConnection)
+      scriptType: bash
+      scriptPath: $(armModulePath)/delete_cluster_and_connection.sh
+      arguments: $(armModulePath) $(cname) $(rgroup) $(devOpsOrg) $(devOpsProject) $(devOpsPatUser) $(devOpsPat) $(k8conn) skip

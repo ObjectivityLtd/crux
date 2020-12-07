@@ -1,0 +1,26 @@
+parameters:
+  mode: jmeter
+  timeoutInMinutes: 5
+
+steps:
+  - ${{ if and(ne(parameters.mode,'tests'),ne(parameters.mode,'jmeter_dynamic')) }}:
+    - task: AzureCLI@2
+      condition: and(always(), not(eq(variables.delete_nodepool, false)))
+      displayName: Delete dedicated nodepool
+      timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+      inputs:
+        azureSubscription: $(armServiceConnection)
+        scriptType: bash
+        scriptPath: $(armModulePath)/delete_nodepool.sh
+        arguments: crux$(Build.BuildID) $(cluster_name) $(rgroup)
+
+  - ${{ if and(ne(parameters.mode,'tests'),eq(parameters.mode,'jmeter_dynamic')) }}: #dynamic cluster name cname becomes available:
+      - task: AzureCLI@2
+        condition: and(always(), not(eq(variables.delete_nodepool, false)))
+        displayName: Delete dedicated nodepool
+        timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+        inputs:
+          azureSubscription: $(armServiceConnection)
+          scriptType: bash
+          scriptPath: $(armModulePath)/delete_nodepool.sh
+          arguments: crux$(Build.BuildID) $(cname) $(rgroup)

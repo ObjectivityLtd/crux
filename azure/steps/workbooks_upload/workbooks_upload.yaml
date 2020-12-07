@@ -1,0 +1,17 @@
+parameters:
+  timeoutInMinutes: 5
+steps:
+  - task: PowerShell@2
+    displayName: Workbooks upload
+    timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+    condition: and(not(eq(variables['module.workbooks.enabled'], false)),not(eq(variables.workbooks_enabled, false)))
+    inputs:
+      arguments: > # Use this to avoid newline characters in multiline string
+        -PropertiesPath "$(System.DefaultWorkingDirectory)/$(reposRoot)/$(workbooks_file)"
+        -FilePathCSV "$(results)"
+        -JmeterArg "$(jmeter_args)"
+        -BuildId "$(Build.BuildId)"
+        -BuildStatus "$(Agent.JobStatus)"
+        -PipelineId "$(System.DefinitionId)"
+      filePath: 'modules/workbooks/Workbooks.ps1'
+      pwsh: true

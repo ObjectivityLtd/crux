@@ -1,0 +1,7 @@
+steps:
+  - bash: |
+      PATH=/home/vsts/bin:$PATH && \
+      PATH=$HOME/bin:$PATH && \
+      PATH=/home/vsts/.local/bin:$PATH && \
+      cd $(System.DefaultWorkingDirectory)/docker && mkdir -p docker_tests_results && bats -o docker_tests_results -F junit *.bats
+    displayName: Run Docker Image tests

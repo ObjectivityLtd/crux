@@ -1,0 +1,15 @@
+parameters:
+  mode: jmeter
+  timeoutInMinutes: 5
+
+steps:
+  - ${{ if eq(parameters.mode,'tests') }}:
+    - task: AzureCLI@2
+      condition: and(always(), not(eq(variables.delete_nodepool, false)))
+      displayName: Delete dedicated nodepool
+      timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+      inputs:
+        azureSubscription: $(armServiceConnection)
+        scriptType: bash
+        scriptPath: $(armModulePath)/delete_nodepool.sh
+        arguments: crux$(Build.BuildID) $(cluster_name) $(rgroup)

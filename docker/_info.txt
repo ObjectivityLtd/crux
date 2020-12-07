@@ -1,5 +1,0 @@
-#build and push images
-sh build.sh
-#run tests against imahes
-bats docker.bats
-#rest of files witin this directory are

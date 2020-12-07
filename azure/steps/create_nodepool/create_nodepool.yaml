@@ -1,0 +1,28 @@
+parameters:
+  mode: jmeter
+  timeoutInMinutes: 10
+
+steps:
+  - ${{ if and(ne(parameters.mode,'tests'),ne(parameters.mode,'jmeter_dynamic')) }}:
+    - task: AzureCLI@2
+      displayName: Create dedicated nodepool
+      condition: and(succeeded(), not(eq(variables.create_nodepool, false)))
+      timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+      inputs:
+        azureSubscription: $(armServiceConnection)
+        scriptType: bash
+        scriptPath: $(armModulePath)/create_nodepool.sh
+        arguments: $(_crux_aks_agent_pool) $(cluster_name) crux.usage jmeter $(rgroup) $(scale_up_replicas) $(clusterNodeSize)
+                   #nodepool_name       #cluster_name   #crux_label #crux_label_value #resource_group #scale_up_replicas #node_size
+
+  - ${{ if and(ne(parameters.mode,'tests'),eq(parameters.mode,'jmeter_dynamic')) }}: #dynamic cluster name cname becomes available
+      - task: AzureCLI@2
+        displayName: Create dedicated nodepool
+        timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+        condition: and(succeeded(), not(eq(variables.create_nodepool, false)))
+        inputs:
+          azureSubscription: $(armServiceConnection)
+          scriptType: bash
+          scriptPath: $(armModulePath)/create_nodepool.sh
+          arguments: $(_crux_aks_agent_pool) $(cname) crux.usage jmeter $(rgroup) $(scale_up_replicas) $(clusterNodeSize)
+                     #nodepool_name       #cluster_name   #crux_label #crux_label_value #resource_group #scale_up_replicas #node_size

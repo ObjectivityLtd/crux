@@ -1,0 +1,10 @@
+parameters:
+  timeoutInMinutes: 5
+steps:
+  - task: ShellScript@2
+    displayName: Delete namespace
+    timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+    condition: and(always(), not(eq(variables.delete_namespace, false)))
+    inputs:
+      scriptPath: $(armModulePath)/delete_namespace.sh
+      args: $(cluster_namespace)
