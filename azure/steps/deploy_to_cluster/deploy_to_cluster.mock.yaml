@@ -6,5 +6,5 @@ steps:
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     condition: and(succeeded(), not(eq(variables.deploy_to_cluster, false)))
     inputs:
-      scriptPath: $(armModulePath)/deploy_to_cluster.sh
+      scriptPath: deploy_to_cluster.sh
       args: $(System.DefaultWorkingDirectory) $(cluster_namespace) $(service-master) $(service) $(scale_up_replicas) "jmeter_master_deploy.yaml" "jmeter_slaves_deploy.yaml"
