@@ -13,7 +13,7 @@ steps:
 
       #loading properties from crux.properties
       echo "-- Parsing crux.propeties"
-      cp pipelines/azure/templates/mocks/test_data/crux.properties $(crux_file)
+      cp azure/steps/test_data/crux.properties $(crux_file)
       cat $(crux_file)
       awk -F= '{print "echo ##vso[task.setvariable variable="$1"]"$2}' $(crux_file) >> vars.txt && cat vars.txt
 
