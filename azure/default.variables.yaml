@@ -10,6 +10,7 @@ variables:
   service: jmeter-slaves
   service-master: jmeter-master
   armModulePath: $(System.DefaultWorkingDirectory)/azure/arm
+  _crux_steps_path: $(System.DefaultWorkingDirectory)/azure/steps
   k8conn: k8_$(Build.BuildID)
   ${{ if not(eq(parameters.mode,'tests')) }}:
     report_dir: kubernetes/tmp/report
