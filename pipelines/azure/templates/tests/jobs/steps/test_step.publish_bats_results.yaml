@@ -1,8 +1,0 @@
-steps:
-  - task: PublishTestResults@2
-    condition: always()
-    displayName: Publish Framework BATS Tests Results
-    inputs:
-      failTaskOnFailedTests: true
-      testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit, cTest
-      testResultsFiles: '**/TestReport-*.xml'

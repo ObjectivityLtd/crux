@@ -1,5 +1,0 @@
-steps:
-  - task: ShellScript@2
-    displayName: Install BATS
-    inputs:
-      scriptPath: $(System.DefaultWorkingDirectory)/modules/bats/install.sh

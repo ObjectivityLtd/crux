@@ -9,7 +9,6 @@ variables:
   scale_up_replicas_master: 1
   service: jmeter-slaves
   service-master: jmeter-master
-  armModulePath: $(System.DefaultWorkingDirectory)/azure/arm
   _crux_steps_path: $(System.DefaultWorkingDirectory)/azure/steps
   k8conn: k8_$(Build.BuildID)
   ${{ if not(eq(parameters.mode,'tests')) }}:
