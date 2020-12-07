@@ -44,7 +44,7 @@ jobs:
       - task: RunARMTTKTests@1
         displayName: Run ARM TTK tests
         inputs:
-          templatelocation: '$(_crux_steps_path)\create_cluster\k8.json'
+          templatelocation: '$(System.DefaultWorkingDirectory)\azure\steps\create_cluster\k8.json'
           resultLocation: '$(System.DefaultWorkingDirectory)\arm_ttk_test_results'
 
       - task: PublishTestResults@2
