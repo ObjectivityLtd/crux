@@ -8,5 +8,13 @@ steps:
     inputs:
       azureSubscription: $(armServiceConnection)
       scriptType: bash
-      scriptPath: $(armModulePath)/create_cluster_and_refresh_creds.sh
-      arguments: temp$(Build.BuildID) $(rgroup) $(armModulePath)/k8.json $(clusterNodeSize) $(clusterNodeNumber) perf_$(Build.BuildID)_ cname $(armModulePath)
+      scriptPath: $(_crux_steps_path)/create_cluster_and_refresh_creds/create_cluster_and_refresh_creds.sh
+      arguments: >
+        temp$(Build.BuildID)
+        $(rgroup)
+        $(_crux_steps_path)/create_cluster_and_refresh_creds/k8.json
+        $(clusterNodeSize)
+        $(clusterNodeNumber)
+        perf_$(Build.BuildID)_
+        cname
+        $(_crux_steps_path)/create_cluster_and_refresh_creds
