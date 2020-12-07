@@ -12,9 +12,9 @@ steps:
       arguments: >
         temp$(Build.BuildID)
         $(rgroup)
-        $(_crux_steps_path)/create_cluster_and_refresh_creds/k8.json
+        $(_crux_steps_path)/create_cluster/k8.json
         $(clusterNodeSize)
         $(clusterNodeNumber)
         perf_$(Build.BuildID)_
         cname
-        $(_crux_steps_path)/create_cluster_and_refresh_creds
+        $(_crux_steps_path)/create_cluster
