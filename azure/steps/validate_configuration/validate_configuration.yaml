@@ -7,5 +7,5 @@ steps:
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     condition: not(eq(variables.validate_configuration, false))
     inputs:
-      scriptPath: $(armModulePath)/validate_configuration.sh
+      scriptPath: $(_crux_steps_path)/validate_configuration/validate_configuration.sh
       args: ${{ parameters.mode }} $(armServiceConnection) $(kubernetesServiceConnection) "https://github.com/ObjectivityLtd/crux/wiki/CRUX-pipeline-requirements"

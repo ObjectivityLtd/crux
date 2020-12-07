@@ -5,7 +5,7 @@ function runModuleTests(){
  local module=$1
  local test_folder=$2
  printf "\n# Running tests for module $module\n"
- cd ../$module && bats -r --formatter junit *.bats --output "$test_folder"
+ cd ../$module && bats -r . --formatter junit --output "$test_folder"
  cd "$here"
 }
 

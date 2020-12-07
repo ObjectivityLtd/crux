@@ -5,9 +5,9 @@ load $HOME/test/test_helper/bats-assert/load.bash
 load $HOME/test/test_helper/bats-support/load.bash
 
 function setup(){
-  source create_cluster.sh
+  source "$BATS_TEST_DIRNAME/create_cluster.sh"
   az(){
-    cat test_data/armResponse.json
+    cat "$BATS_TEST_DIRNAME/armResponse.json"
   }
   export -f az
 }

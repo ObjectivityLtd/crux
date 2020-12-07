@@ -5,7 +5,7 @@ load $HOME/test/test_helper/bats-assert/load.bash
 load $HOME/test/test_helper/bats-support/load.bash
 
 function setup(){
-  source delete_cluster.sh
+  source "$BATS_TEST_DIRNAME/delete_cluster.sh"
 }
 
 
@@ -25,7 +25,7 @@ function setup(){
     :
   }
 
-  run cat delete_cluster.sh
+  run cat "$BATS_TEST_DIRNAME/delete_cluster.sh"
   assert_output --partial "--yes --no-wait"
 
 }

@@ -11,5 +11,5 @@ steps:
       inputs:
         azureSubscription: $(armServiceConnection)
         scriptType: bash
-        scriptPath: $(armModulePath)/delete_nodepool.sh
+        scriptPath: $(_crux_steps_path)/delete_nodepool/delete_nodepool.sh
         arguments: crux$(Build.BuildID) $(cluster_name) $(rgroup)

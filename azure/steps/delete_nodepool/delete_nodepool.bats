@@ -5,7 +5,7 @@ load $HOME/test/test_helper/bats-assert/load.bash
 load $HOME/test/test_helper/bats-support/load.bash
 
 function setup(){
-  source delete_nodepool.sh
+  source "$BATS_TEST_DIRNAME/delete_nodepool.sh"
   az(){
     echo "Called function $FUNCNAME $*"
   }

@@ -6,5 +6,5 @@ steps:
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     condition: and(always(), not(eq(variables.delete_namespace, false)))
     inputs:
-      scriptPath: $(armModulePath)/delete_namespace.sh
+      scriptPath: $(_crux_steps_path)/delete_namespace/delete_namespace.sh
       args: $(cluster_namespace)

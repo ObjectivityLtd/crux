@@ -11,6 +11,6 @@ steps:
       inputs:
         azureSubscription: $(armServiceConnection)
         scriptType: bash
-        scriptPath: $(armModulePath)/create_nodepool.sh
+        scriptPath: $(_crux_steps_path)/create_nodepool/create_nodepool.sh
         arguments: $(_crux_aks_agent_pool) $(cluster_name) crux.usage jmeter $(rgroup) $(scale_up_replicas) $(clusterNodeSize)
                    #nodepool_name       #cluster_name   #crux_label #crux_label_value #resource_group #scale_up_replicas #node_size

@@ -5,7 +5,7 @@ load $HOME/test/test_helper/bats-assert/load.bash
 load $HOME/test/test_helper/bats-support/load.bash
 
 function setup(){
-  source create_nodepool.sh
+  source "$BATS_TEST_DIRNAME/create_nodepool.sh"
   display_crux_pools_number(){
     echo "Called function $FUNCNAME"
   }

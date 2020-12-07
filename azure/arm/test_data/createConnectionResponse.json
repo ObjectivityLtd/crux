@@ -1,9 +1,0 @@
-{
-  "data": {
-    "authorizationType": "Kubeconfig"
-  },
-  "id": "cfd2cd77-3b9d-4c1e-ba56-a4efd13e9a64",
-  "name": "k112",
-  "type": "kubernetes",
-  "url": "https://performance-2ff91226.hcp.westeurope.azmk8s.io"
-}

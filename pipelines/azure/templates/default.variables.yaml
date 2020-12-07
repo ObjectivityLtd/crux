@@ -49,7 +49,7 @@ variables:
     errors: $(mock_dir)/errors.xml
     thresholds_file: $(mock_dir)/thresholds.properties
     workbooks_file: $(mock_dir)/workbooks.properties
-    crux_file: $(mock_dir)/crux.properties
+    _crux_properties_file: $(mock_dir)/crux.properties
     reposRoot: ""
     _crux_jmeter_master_deploy_file: ""
     _crux_jmeter_slave_deploy_file: ""
