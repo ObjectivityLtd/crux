@@ -6,7 +6,7 @@ steps:
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     condition: not(eq(variables._crux_delete_cluster, false))
     inputs:
-      azureSubscription: $(armServiceConnection)
+      azureSubscription: $(_crux_arm_service_connection)
       scriptType: bash
       scriptPath: $(_crux_steps_path)/delete_cluster/delete_cluster.sh
       arguments: $(cname) $(_crux_cluster_resource_group)

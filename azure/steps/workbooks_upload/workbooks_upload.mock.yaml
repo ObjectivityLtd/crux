@@ -10,7 +10,7 @@ steps:
         -propertiesPath "$(System.DefaultWorkingDirectory)/$(_crux_repos_root)/$(_crux_workbooks_file)"
         -filePathCSV "$(_crux_results)"
         -dryRun $true
-        -jmeterArgs "$(jmeter_args)"
+        -jmeterArgs "$(_crux_jmeter_args)"
         -buildId "$(Build.BuildId)"
         -buildStatus "$(Agent.JobStatus)"
         -pipelineId "$(System.DefinitionId)"

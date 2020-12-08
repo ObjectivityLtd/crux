@@ -2,8 +2,8 @@ parameters:
   timeoutInMinutes: 5
 steps:
   - bash: |
-      mkdir -p $(_crux_repos_root) && cp -r $(_crux_repo_name) $(System.DefaultWorkingDirectory)/$(_crux_repos_root)/$(_crux_repo_name)
-      cp -r $(cruxRepoName)/* $(System.DefaultWorkingDirectory)/
+      mkdir -p $(_crux_repos_root) && cp -r $(_crux_tests_repo_name) $(System.DefaultWorkingDirectory)/$(_crux_repos_root)/$(_crux_tests_repo_name)
+      cp -r $(_crux_crux_repo_name)/* $(System.DefaultWorkingDirectory)/
       #loading properties from crux.properties
       echo "-- Parsing crux.properties"
       cat $(_crux_properties_file)

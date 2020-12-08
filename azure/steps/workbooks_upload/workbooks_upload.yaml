@@ -9,7 +9,7 @@ steps:
       arguments: > # Use this to avoid newline characters in multiline string
         -PropertiesPath "$(System.DefaultWorkingDirectory)/$(_crux_repos_root)/$(_crux_workbooks_file)"
         -FilePathCSV "$(_crux_results)"
-        -JmeterArg "$(jmeter_args)"
+        -JmeterArg "$(_crux_jmeter_args)"
         -BuildId "$(Build.BuildId)"
         -BuildStatus "$(Agent.JobStatus)"
         -PipelineId "$(System.DefinitionId)"

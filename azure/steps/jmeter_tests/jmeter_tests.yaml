@@ -7,4 +7,4 @@ steps:
     condition: and(succeeded(), not(eq(variables.jmeter_tests, false)))
     inputs:
       scriptPath: kubernetes/bin/jmeter.sh
-      args: $(cluster_namespace) $(_crux_repos_root)/$(scenario) $(_crux_repos_root)/$(data_dir) $(data_dir_relative) "$(jmeter_args)"
+      args: $(_crux_cluster_deployment_namespace) $(_crux_repos_root)/$(_crux_jmeter_scenario) $(_crux_repos_root)/$(_crux_data_dir) $(_crux_data_dir_relative) "$(_crux_jmeter_args)"

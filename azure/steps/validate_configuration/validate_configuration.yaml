@@ -8,4 +8,4 @@ steps:
     condition: not(eq(variables.validate_configuration, false))
     inputs:
       scriptPath: $(_crux_steps_path)/validate_configuration/validate_configuration.sh
-      args: ${{ parameters.mode }} $(armServiceConnection) $(kubernetesServiceConnection) "https://github.com/ObjectivityLtd/crux/wiki/CRUX-pipeline-requirements"
+      args: ${{ parameters.mode }} $(_crux_arm_service_connection) $(_crux_kubernetes_service_connection) "https://github.com/ObjectivityLtd/crux/wiki/CRUX-pipeline-requirements"

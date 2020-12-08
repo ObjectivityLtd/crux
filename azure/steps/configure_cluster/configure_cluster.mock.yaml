@@ -8,4 +8,4 @@ steps:
     inputs:
       command: login
       connectionType: Kubernetes Service Connection
-      kubernetesServiceEndpoint: $(kubernetesServiceConnection)
+      kubernetesServiceEndpoint: $(_crux_kubernetes_service_connection)

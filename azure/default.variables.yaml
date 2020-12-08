@@ -8,6 +8,7 @@ variables:
   _crux_scale_up_replicas_master: 1
   _crux_jmeter_slaves_service: jmeter-slaves
   _crux_jmeter_master_service: jmeter-master
+  _crux_data_dir: $(_crux_tests_repo_name)/$(_crux_data_dir_relative)
   _crux_steps_path: $(System.DefaultWorkingDirectory)/azure/steps
   ${{ if not(eq(parameters.mode,'tests')) }}:
     _crux_report_dir: kubernetes/tmp/report

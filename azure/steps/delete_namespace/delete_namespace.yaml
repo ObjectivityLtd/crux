@@ -7,4 +7,4 @@ steps:
     condition: and(always(), not(eq(variables._crux_delete_namespace, false)))
     inputs:
       scriptPath: $(_crux_steps_path)/delete_namespace/delete_namespace.sh
-      args: $(cluster_namespace)
+      args: $(_crux_cluster_deployment_namespace)

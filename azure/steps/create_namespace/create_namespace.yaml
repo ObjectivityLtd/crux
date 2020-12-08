@@ -7,4 +7,4 @@ steps:
     condition: and(succeeded(), not(eq(variables._crux_create_namespace, false)))
     inputs:
       scriptPath: $(_crux_steps_path)/create_namespace/create_namespace.sh
-      args: $(cluster_namespace)
+      args: $(_crux_cluster_deployment_namespace)
