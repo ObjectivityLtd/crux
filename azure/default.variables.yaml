@@ -16,6 +16,7 @@ variables:
   _crux_thresholds_file: $(_crux_tests_repo_name)/$(_crux_thresholds_file_relative)
   _crux_workbooks_file: $(_crux_tests_repo_name)/$(_crux_workbooks_file_relative)
   _crux_data_dir: $(_crux_tests_repo_name)/$(_crux_data_dir_relative)
+  _crux_jmeter_scenario: $(_crux_tests_repo_name)/$(_crux_jmeter_scenario_relative)
 
   _crux_steps_path: $(System.DefaultWorkingDirectory)/azure/steps
   ${{ if not(eq(parameters.mode,'tests')) }}:
