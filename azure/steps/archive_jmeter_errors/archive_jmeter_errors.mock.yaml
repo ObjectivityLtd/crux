@@ -6,5 +6,5 @@ steps:
     displayName: Archive Errors
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     inputs:
-      path: $(errors)
+      path: $(_crux_errors)
       artifact: errors.xml

@@ -2,9 +2,9 @@ parameters:
   timeoutInMinutes: 5
 steps:
   - bash: |
-      echo "reposRoot: $(reposRoot), repoName: $(repoName)"
+      echo "reposRoot: $(_crux_repos_root), repoName: $(repoName)"
       echo "-- Unpacking crux and test repo to correct folders"
-      mkdir -p $(reposRoot) &> /dev/null && cp -r $(repoName) $(System.DefaultWorkingDirectory)/$(reposRoot)/$(repoName) # reposRoot empty so supressing errors in mkdir
+      mkdir -p $(_crux_repos_root) &> /dev/null && cp -r $(repoName) $(System.DefaultWorkingDirectory)/$(_crux_repos_root)/$(repoName) # reposRoot empty so supressing errors in mkdir
       cp -r $(cruxRepoName)/* $(System.DefaultWorkingDirectory)/
 
       #mock set-up for tests

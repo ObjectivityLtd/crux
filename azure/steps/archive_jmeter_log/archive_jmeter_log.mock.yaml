@@ -6,5 +6,5 @@ steps:
     displayName: Archive Log
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     inputs:
-      path: $(log)
+      path: $(_crux_log)
       artifact: jmeter.log

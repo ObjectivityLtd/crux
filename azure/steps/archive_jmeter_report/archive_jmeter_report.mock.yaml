@@ -6,5 +6,5 @@ steps:
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     condition: not(eq(variables.archive_jmeter_report, false))
     inputs:
-      path: $(report_dir)
+      path: $(_crux_report_dir)
       artifact: JmeterReport

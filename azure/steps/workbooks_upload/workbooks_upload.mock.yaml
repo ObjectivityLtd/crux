@@ -7,8 +7,8 @@ steps:
     condition: and(not(eq(variables['module.workbooks.enabled'], false)),not(eq(variables.workbooks_enabled, false)))
     inputs:
       arguments: > # Use this to avoid newline characters in multiline string
-        -propertiesPath "$(System.DefaultWorkingDirectory)/$(reposRoot)/$(workbooks_file)"
-        -filePathCSV "$(results)"
+        -propertiesPath "$(System.DefaultWorkingDirectory)/$(_crux_repos_root)/$(workbooks_file)"
+        -filePathCSV "$(_crux_results)"
         -dryRun $true
         -jmeterArgs "$(jmeter_args)"
         -buildId "$(Build.BuildId)"

@@ -6,5 +6,5 @@ steps:
     displayName: Archive Results file
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     inputs:
-      path: $(results)
+      path: $(_crux_results)
       artifact: results.csv

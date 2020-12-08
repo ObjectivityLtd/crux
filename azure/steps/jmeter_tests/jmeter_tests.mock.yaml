@@ -4,14 +4,14 @@ steps:
   - bash: |
       echo ${{ parameters.mode }}
       echo "Creating dummy data: report_dir"
-      mkdir -p $(report_dir)
+      mkdir -p $(_crux_report_dir)
       echo "Creating dummy data: jmeter.log, results.csv, report"
-      touch $(log) $(server_logs_dir) $(errors) $(report_dir)/index.html
+      touch $(_crux_log) $(_crux_server_logs_dir) $(_crux_errors) $(_crux_report_dir)/index.html
       test_data_path=azure/steps/test_data
-      cp $test_data_path/statistics.json $(report_dir)/
+      cp $test_data_path/statistics.json $(_crux_report_dir)/
       cp $test_data_path/thresholds.properties $(thresholds_file)
       cp $test_data_path/workbooks.e2e.properties $(workbooks_file)
-      cp -R $test_data_path/results.csv $(results)
+      cp -R $test_data_path/results.csv $(_crux_results)
       ls -alh $(mock_dir)
 
       echo "module.junit.enabled:$(module.junit.enabled)"
