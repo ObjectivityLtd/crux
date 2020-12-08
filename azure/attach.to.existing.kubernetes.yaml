@@ -41,16 +41,16 @@ jobs:
         kubernetesServiceEndpoint: ${{ parameters.kubernetesServiceConnection }}
 
     - bash: |
-        kubectl delete -n $(namespace) deployment/jmeter-slaves deployment/jmeter-master svc/jmeter-slaves-svc configmap/jmeter-load-test pvc/jmeter-shared-disk  ||:
+        kubectl delete -n $(_crux_cluster_existing_namespace) deployment/jmeter-slaves deployment/jmeter-master svc/jmeter-slaves-svc configmap/jmeter-load-test pvc/jmeter-shared-disk  ||:
         kubectl delete sc/jmeter-shared-disk-sc ||: #this is not cluster-scoped resource hence dropping the namespace
       displayName: Delete existing deployment
 
     - bash: |
-        kubectl create  -n $(namespace) -f kubernetes/config/deployments/jmeter_shared_volume_sc.yaml
-        kubectl create  -n $(namespace) -f kubernetes/config/deployments/jmeter_shared_volume.yaml
-        kubectl create  -n $(namespace) -f kubernetes/config/deployments/jmeter_slaves_deploy.yaml
-        kubectl create  -n $(namespace) -f kubernetes/config/deployments/jmeter_slaves_svc.yaml
-        kubectl create  -n $(namespace) -f kubernetes/config/deployments/jmeter_master_configmap.yaml
-        kubectl create  -n $(namespace) -f kubernetes/config/deployments/jmeter_master_deploy.yaml
+        kubectl create  -n $(_crux_cluster_existing_namespace) -f kubernetes/config/deployments/jmeter_shared_volume_sc.yaml
+        kubectl create  -n $(_crux_cluster_existing_namespace) -f kubernetes/config/deployments/jmeter_shared_volume.yaml
+        kubectl create  -n $(_crux_cluster_existing_namespace) -f kubernetes/config/deployments/jmeter_slaves_deploy.yaml
+        kubectl create  -n $(_crux_cluster_existing_namespace) -f kubernetes/config/deployments/jmeter_slaves_svc.yaml
+        kubectl create  -n $(_crux_cluster_existing_namespace) -f kubernetes/config/deployments/jmeter_master_configmap.yaml
+        kubectl create  -n $(_crux_cluster_existing_namespace) -f kubernetes/config/deployments/jmeter_master_deploy.yaml
       condition: and(succeeded(), not(eq('${{ parameters.mode }}', 'delete')))
       displayName: Deploy services to cluster
