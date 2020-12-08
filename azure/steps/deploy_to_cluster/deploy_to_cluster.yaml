@@ -7,4 +7,4 @@ steps:
     condition: and(succeeded(), not(eq(variables.deploy_to_cluster, false)))
     inputs:
       scriptPath: $(_crux_steps_path)/deploy_to_cluster/deploy_to_cluster.sh
-      args: $(System.DefaultWorkingDirectory) $(cluster_namespace) $(service-master) $(service) $(scale_up_replicas) $(_crux_jmeter_master_deploy_file) $(_crux_jmeter_slave_deploy_file) $(_crux_aks_agent_pool)
+      args: $(System.DefaultWorkingDirectory) $(cluster_namespace) $(_crux_jmeter_master_service) $(_crux_jmeter_slaves_service) $(scale_up_replicas) $(_crux_jmeter_master_deploy_file) $(_crux_jmeter_slave_deploy_file) $(_crux_aks_agent_pool)
