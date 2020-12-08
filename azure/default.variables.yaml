@@ -22,66 +22,66 @@ variables:
   ${{ if eq(parameters.mode,'tests') }}:
     ${{ if ne(True,variables['_crux_create_cluster']) }}:
       _crux_create_cluster: false
-    ${{ if ne(True,variables['configure_cluster']) }}:
-      configure_cluster: false
-    ${{ if ne(True,variables['create_namespace']) }}:
-      create_namespace: false
-    ${{ if ne(True,variables['delete_namespace']) }}:
-      delete_namespace: false
-    ${{ if ne(True,variables['create_nodepool']) }}:
-      create_nodepool: false
-    ${{ if ne(True,variables['delete_nodepool']) }}:
-      delete_nodepool: false
-    ${{ if ne(True,variables['deploy_to_cluster']) }}:
-      deploy_to_cluster: false
-    ${{ if ne(True,variables['delete_cluster']) }}:
-      delete_cluster: false
-    ${{ if ne(True,variables['docker_build_and_push']) }}:
-      docker_build_and_push: false
+    ${{ if ne(True,variables['_crux_configure_cluster']) }}:
+      _crux_configure_cluster: false
+    ${{ if ne(True,variables['_crux_create_namespace']) }}:
+      _crux_create_namespace: false
+    ${{ if ne(True,variables['_crux_delete_namespace']) }}:
+      _crux_delete_namespace: false
+    ${{ if ne(True,variables['_crux_create_nodepool']) }}:
+      _crux_create_nodepool: false
+    ${{ if ne(True,variables['_crux_delete_nodepool']) }}:
+      _crux_delete_nodepool: false
+    ${{ if ne(True,variables['_crux_deploy_to_cluster']) }}:
+      _crux_deploy_to_cluster: false
+    ${{ if ne(True,variables['_crux_delete_cluster']) }}:
+      _crux_delete_cluster: false
+    ${{ if ne(True,variables['_crux_docker_build_and_push']) }}:
+      _crux_docker_build_and_push: false
     #changing paths for mock to avoid clash with real tests
-    mock_dir: mocked/kubernetes/tmp
-    report_dir: $(mock_dir)/report
-    results: $(mock_dir)/results.csv
-    server_logs_dir: $(mock_dir)/server_logs
-    log: $(mock_dir)/jmeter.log
-    errors: $(mock_dir)/errors.xml
-    thresholds_file: $(mock_dir)/thresholds.properties
-    workbooks_file: $(mock_dir)/workbooks.properties
-    _crux_properties_file: $(mock_dir)/crux.properties
-    reposRoot: ""
+    _crux_mock_dir: mocked/kubernetes/tmp
+    _crux_report_dir: $(_crux_mock_dir)/report
+    _crux_results: $(_crux_mock_dir)/results.csv
+    _crux_server_logs_dir: $(_crux_mock_dir)/server_logs
+    _crux_log: $(_crux_mock_dir)/jmeter.log
+    _crux_errors: $(_crux_mock_dir)/errors.xml
+    _crux_thresholds_file: $(_crux_mock_dir)/thresholds.properties
+    _crux_workbooks_file: $(_crux_mock_dir)/workbooks.properties
+    _crux_properties_file: $(_crux_mock_dir)/crux.properties
+    _crux_repos_root: ""
     _crux_jmeter_master_deploy_file: ""
     _crux_jmeter_slave_deploy_file: ""
     _crux_aks_agent_pool: ""
 
   ${{ if eq(parameters.mode,'jmeter') }}:
-    ${{ if ne(True,variables['create_cluster']) }}:
-      create_cluster: false
-    ${{ if ne(True,variables['delete_cluster']) }}:
-      delete_cluster: false
-    ${{ if ne(True,variables['create_nodepool']) }}:
-      create_nodepool: false
-    ${{ if ne(True,variables['delete_nodepool']) }}:
-      delete_nodepool: false
+    ${{ if ne(True,variables['_crux_create_cluster']) }}:
+      _crux_create_cluster: false
+    ${{ if ne(True,variables['_crux_delete_cluster']) }}:
+      _crux_delete_cluster: false
+    ${{ if ne(True,variables['_crux_create_nodepool']) }}:
+      _crux_create_nodepool: false
+    ${{ if ne(True,variables['_crux_delete_nodepool']) }}:
+      _crux_delete_nodepool: false
     _crux_jmeter_master_deploy_file: "jmeter_master_deploy.yaml" #soft deployment rules
     _crux_jmeter_slave_deploy_file: "jmeter_slaves_deploy.yaml"
     _crux_aks_agent_pool: ""
 
   ${{ if eq(parameters.mode,'jmeter_with_dynamic_pools') }}:
-    ${{ if ne(True,variables['create_cluster']) }}:
-      create_cluster: false
-    ${{ if ne(True,variables['delete_cluster']) }}:
-      delete_cluster: false
+    ${{ if ne(True,variables['_crux_create_cluster']) }}:
+      _crux_create_cluster: false
+    ${{ if ne(True,variables['_crux_delete_cluster']) }}:
+      _crux_delete_cluster: false
     _crux_jmeter_master_deploy_file: "jmeter_master_deploy_required.yaml" #soft deployment rules
     _crux_jmeter_slave_deploy_file: "jmeter_slaves_deploy_required.yaml"
     _crux_aks_agent_pool: crux$(Build.BuildID)
 
   ${{ if eq(parameters.mode,'jmeter_dynamic') }}:
-    ${{ if ne(True,variables['configure_cluster']) }}:
-      configure_cluster: false
-    ${{ if ne(True,variables['create_namespace']) }}:
+    ${{ if ne(True,variables['_crux_configure_cluster']) }}:
+      _crux_configure_cluster: false
+    ${{ if ne(True,variables['_crux_create_namespace']) }}:
       create_namespace: true
-    ${{ if ne(True,variables['delete_namespace']) }}:
-      delete_namespace: false
+    ${{ if ne(True,variables['_crux_delete_namespace']) }}:
+      _crux_delete_namespace: false
     _crux_jmeter_master_deploy_file: "jmeter_master_deploy_required.yaml" #hard deployment rules
     _crux_jmeter_slave_deploy_file: "jmeter_slaves_deploy_required.yaml"
     _crux_aks_agent_pool: crux$(Build.BuildID)

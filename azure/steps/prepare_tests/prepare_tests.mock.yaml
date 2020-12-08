@@ -9,7 +9,7 @@ steps:
 
       #mock set-up for tests
       echo "-- Creating mock dir"
-      mkdir -p $(mock_dir)
+      mkdir -p $(_crux_mock_dir)
 
       #loading properties from crux.properties
       echo "-- Parsing crux.propeties"

@@ -6,7 +6,7 @@ steps:
   - ${{ if eq(parameters.mode,'tests') }}:
     - task: AzureCLI@2
       displayName: Create dedicated nodepool
-      condition: and(succeeded(), not(eq(variables.create_nodepool, false)))
+      condition: and(succeeded(), not(eq(variables._crux_create_nodepool, false)))
       timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
       inputs:
         azureSubscription: $(armServiceConnection)

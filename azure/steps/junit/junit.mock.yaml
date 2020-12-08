@@ -7,4 +7,4 @@ steps:
     condition: and(not(eq(variables['module.junit.enabled'], false)),not(eq(variables.evaluate_as_junit_tests, false)))
     inputs:
       scriptPath: modules/junit/evaluateTestResultsAsJunit.sh
-      args: $(System.DefaultWorkingDirectory)/$(_crux_report_dir)/statistics.json $(System.DefaultWorkingDirectory)/modules/junit/results $(System.DefaultWorkingDirectory)/modules/junit/templates $(System.DefaultWorkingDirectory)/$(_crux_repos_root)/$(thresholds_file)
+      args: $(System.DefaultWorkingDirectory)/$(_crux_report_dir)/statistics.json $(System.DefaultWorkingDirectory)/modules/junit/results $(System.DefaultWorkingDirectory)/modules/junit/templates $(System.DefaultWorkingDirectory)/$(_crux_repos_root)/$(_crux_thresholds_file)

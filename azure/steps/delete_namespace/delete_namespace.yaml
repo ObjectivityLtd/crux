@@ -4,7 +4,7 @@ steps:
   - task: ShellScript@2
     displayName: Delete namespace
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
-    condition: and(always(), not(eq(variables.delete_namespace, false)))
+    condition: and(always(), not(eq(variables._crux_delete_namespace, false)))
     inputs:
       scriptPath: $(_crux_steps_path)/delete_namespace/delete_namespace.sh
       args: $(cluster_namespace)

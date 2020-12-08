@@ -6,7 +6,7 @@ steps:
   - ${{ if and(ne(parameters.mode,'tests'),ne(parameters.mode,'jmeter_dynamic')) }}:
     - task: AzureCLI@2
       displayName: Create dedicated nodepool
-      condition: and(succeeded(), not(eq(variables.create_nodepool, false)))
+      condition: and(succeeded(), not(eq(variables._crux_create_nodepool, false)))
       timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
       inputs:
         azureSubscription: $(armServiceConnection)
@@ -19,7 +19,7 @@ steps:
       - task: AzureCLI@2
         displayName: Create dedicated nodepool
         timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
-        condition: and(succeeded(), not(eq(variables.create_nodepool, false)))
+        condition: and(succeeded(), not(eq(variables._crux_create_nodepool, false)))
         inputs:
           azureSubscription: $(armServiceConnection)
           scriptType: bash

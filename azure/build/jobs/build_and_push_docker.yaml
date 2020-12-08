@@ -3,7 +3,7 @@ jobs:
     displayName: Docker - publish
     dependsOn: # you can only publish if docker tests are fine
       - docker_images_tests
-    condition: and(succeeded(),eq(variables['docker_build_and_push'], true)) # we push only if explicitely specified by user
+    condition: and(succeeded(),eq(variables['_crux_docker_build_and_push'], true)) # we push only if explicitely specified by user
     variables: #push as latest if no tag specified
       crux.tag: $[coalesce(variables['docker_tag'], 'latest')]
     steps:
