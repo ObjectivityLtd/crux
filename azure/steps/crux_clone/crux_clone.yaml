@@ -3,6 +3,6 @@ parameters:
 steps:
   - checkout: crux
     displayName: CRUX clone
-    path: _crux
+    path: $(System.DefaultWorkingDirectory)/_crux
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     condition: and(succeeded(), not(eq(variables.crux_clone, false)))

@@ -3,6 +3,6 @@ parameters:
 steps:
   - checkout: tests
     displayName: TESTS clone
-    path: _tests
+    path: $(System.DefaultWorkingDirectory)/_tests
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     condition: and(succeeded(), not(eq(variables.tests_clone, false)))
