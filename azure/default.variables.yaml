@@ -12,7 +12,7 @@ variables:
   _crux_jmeter_slaves_service: jmeter-slaves
   _crux_jmeter_master_service: jmeter-master
 
-  _crux_properties_file: $(_crux_tests_repo_name)/$(_crux_thresholds_file_relative)
+  _crux_properties_file: $(_crux_tests_repo_name)/$(_crux_properties_file_relative)
   _crux_thresholds_file: $(_crux_tests_repo_name)/$(_crux_thresholds_file_relative)
   _crux_workbooks_file: $(_crux_tests_repo_name)/$(_crux_workbooks_file_relative)
   _crux_data_dir: $(_crux_tests_repo_name)/$(_crux_data_dir_relative)
