@@ -20,8 +20,8 @@ variables:
 #Variables are set for steps that need to be switched off by default but can be overwritten if need be
 
   ${{ if eq(parameters.mode,'tests') }}:
-    ${{ if ne(True,variables['create_cluster']) }}:
-      create_cluster: false
+    ${{ if ne(True,variables['_crux_create_cluster']) }}:
+      _crux_create_cluster: false
     ${{ if ne(True,variables['configure_cluster']) }}:
       configure_cluster: false
     ${{ if ne(True,variables['create_namespace']) }}:

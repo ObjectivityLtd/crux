@@ -2,7 +2,7 @@ parameters:
   timeoutInMinutes: 10
 steps:
   - task: AzureCLI@2
-    condition: and(succeeded(), not(eq(variables.create_cluster, false)))
+    condition: and(succeeded(), not(eq(variables._crux_create_cluster, false)))
     displayName: Create cluster
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     inputs:
