@@ -3,5 +3,6 @@ parameters:
 steps:
   - checkout: tests
     displayName: TESTS clone
+    path: s/_tests
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     condition: and(succeeded(), not(eq(variables.tests_clone, false)))
