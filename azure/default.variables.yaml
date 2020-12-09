@@ -24,7 +24,7 @@ variables:
     _crux_results: kubernetes/tmp/results.csv
     _crux_log: kubernetes/tmp/jmeter.log
     _crux_errors: kubernetes/tmp/errors.xml
-    _crux_repos_root: ""
+    _crux_repos_root: "repos"
 
 #Variables are set for steps that need to be switched off by default but can be overwritten if need be
 
@@ -55,9 +55,9 @@ variables:
     _crux_log: $(_crux_mock_dir)/jmeter.log
     _crux_errors: $(_crux_mock_dir)/errors.xml
     _crux_thresholds_file: $(_crux_mock_dir)/thresholds.properties
-    _crux_workbooks_file: $(_crux_mock_dir)/workbooks.properties
+    _crux_workbooks_file: $(_crux_mock_dir)/workbooks.e2e.properties
     _crux_properties_file: $(_crux_mock_dir)/crux.properties
-    _crux_repos_root: "repos"
+    _crux_repos_root: ""
     _crux_jmeter_master_deploy_file: ""
     _crux_jmeter_slave_deploy_file: ""
     _crux_aks_agent_pool: ""
