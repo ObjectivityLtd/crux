@@ -24,7 +24,7 @@ variables:
     _crux_results: kubernetes/tmp/results.csv
     _crux_log: kubernetes/tmp/jmeter.log
     _crux_errors: kubernetes/tmp/errors.xml
-    _crux_repos_root: repos
+    _crux_repos_root: ""
 
 #Variables are set for steps that need to be switched off by default but can be overwritten if need be
 
