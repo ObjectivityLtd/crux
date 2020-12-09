@@ -11,8 +11,13 @@ _wait_for_pod() { #public: wait for pods of a given type to be in Running state
   printf "\nWait for service %s pods to be in Running status with interval %s" "$_service" "$_sleep_time_s"
   until [[ "$_status" == "Running" ]]; do
     sleep "$_sleep_time_s"
-    _status=$(kubectl -n "$_service_namespace" get po | grep "$_service" | awk '{print $3}' | sort | uniq) # this will display also old pods until they are gone
-    printf "\nService %s pods statuses: %s " "$_service" "$(echo $_status | xargs)"
+    _status=$( \
+      kubectl -n "$_service_namespace" get po \
+      | grep "$_service" \
+      | awk '{print $3}' \
+      | sort \
+      | uniq) # this will display also old pods until they are gone
+    printf "\nService %s pods statuses: %s " "$_service" "$(echo "$_status" | xargs)"
   done
 
 }
