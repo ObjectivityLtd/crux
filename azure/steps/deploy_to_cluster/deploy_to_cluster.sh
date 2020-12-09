@@ -46,8 +46,6 @@ _display_deployment_correctness_status() {
   if [ "$_pods_deployed_count" -gt "$_nodes_used_count" ]; then
     echo "##[warning] There are more jmeter pods scheduled than nodes. You should not do that! Read why https://github.com/ObjectivityLtd/crux/wiki/FAQ"
     echo "##vso[task.complete result=SucceededWithIssues;]DONE"
-  else
-    printf "\n%s pods deployed on %s nodes" "$_pods_deployed_count" "$_nodes_used_count"
   fi
 }
 
