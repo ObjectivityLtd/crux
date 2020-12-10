@@ -15,5 +15,5 @@ steps:
         $(_crux_cluster_jmeter_slaves_replicas)
         $(_crux_jmeter_master_deploy_file)
         $(_crux_jmeter_slave_deploy_file)
-        $(_crux_aks_agent_pool)
         15
+        $(_crux_aks_agent_pool)
