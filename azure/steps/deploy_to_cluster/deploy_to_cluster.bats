@@ -5,7 +5,6 @@ load $HOME/test/test_helper/bats-assert/load.bash
 load $HOME/test/test_helper/bats-support/load.bash
 
 function setup(){
-  source "$BATS_TEST_DIRNAME/../../lib/utils.sh"
   source "$BATS_TEST_DIRNAME/deploy_to_cluster.sh"
   cp "$BATS_TEST_DIRNAME/../test_data/jmeter_master_deploy_required.yaml" "$BATS_TMPDIR"
 }

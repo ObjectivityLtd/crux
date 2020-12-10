@@ -8,11 +8,7 @@ function runModuleTests(){
  cd ../$module && bats -r . --formatter junit --output "$test_folder"
  cd "$here"
 }
-function sourceLibs(){
-  source $1
-}
 function runAll(){
-  sourceLibs "../../azure/lib/*.sh"
   result_folder=$(pwd)/tmp
   mkdir -p "$result_folder"
   runModuleTests junit "$result_folder"
