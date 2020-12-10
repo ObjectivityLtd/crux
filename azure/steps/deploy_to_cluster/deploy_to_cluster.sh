@@ -45,7 +45,7 @@ _display_deployment_correctness_status() { #public: #display warning message if 
   echo "$_pods_deployed_count $__nodes_used_count"
   if [ "$_pods_deployed_count" -gt "$_nodes_used_count" ]; then
     log_warn "There are more jmeter pods scheduled than nodes. You should not do that! Read why https://github.com/ObjectivityLtd/crux/wiki/FAQ"
-    echo "##vso[task.complete result=SucceededWithIssues;]DONE"
+    mark_task_complete_with_issues "DONE"
   fi
 }
 
@@ -68,9 +68,7 @@ deploy_to_cluster() {
   local _jmeter_shared_volume_sc_file="jmeter_shared_volume_sc.yaml"
   local _jmeter_slaves_svc_file="jmeter_slaves_svc.yaml"
 
-  if [ -z "$_aks_pool" ]; then
-    :
-  else
+  if [ -n "$_aks_pool" ]; then
     sed -i "s/{{agentpool}}/$_aks_pool/g" "$_root_path"/*.yaml
   fi
   echo "Using deployment rules. $_jmeter_master_deploy_file and $_jmeter_slaves_deploy_file"
