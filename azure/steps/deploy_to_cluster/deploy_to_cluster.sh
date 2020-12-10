@@ -38,7 +38,7 @@ _wait_for_pods() {
 #display warning message if deployment is not correct e.g. more pods on nodes than allowed
 _display_deployment_correctness_status() {
   local _cluster_namespace=$1
-  printf "\nDeployment scheduled on: \n %s %s" "$(kubectl -n "$_cluster_namespace" get pods -o wide)" "$(kubectl -n "$_cluster_namespace" get svc)"
+  printf "\nDeployment scheduled on: \n %s \n%s" "$(kubectl -n "$_cluster_namespace" get pods -o wide)" "$(kubectl -n "$_cluster_namespace" get svc)"
   local _pods_nodes="$(kubectl get -n "$_cluster_namespace" pods -o wide | awk '{print $7}')"
   local _pods_deployed_count="$(echo "$_pods_nodes" | wc -l)"
   local _nodes_used_count="$(echo "$_pods_nodes" | sort | uniq | wc -l)"
@@ -92,9 +92,9 @@ deploy_to_cluster() {
     kubectl create -n "$_cluster_namespace" -f "$rootPath/$jmeter_master_deploy_file"
   fi
 
-  echo "Rescaling down and up to assure clean test env. Scaling to 0 first. "
-  kubectl scale -n "$_cluster_namespace" --replicas="$scale_down_replicas" -f "$rootPath/$jmeter_master_deploy_file"
-  kubectl scale -n "$_cluster_namespace" --replicas="$scale_down_replicas" -f "$rootPath/$jmeter_slaves_deploy_file"
+  #echo "Rescaling down and up to assure clean test env. Scaling to 0 first. "
+  #kubectl scale -n "$_cluster_namespace" --replicas="$scale_down_replicas" -f "$rootPath/$jmeter_master_deploy_file"
+  #kubectl scale -n "$_cluster_namespace" --replicas="$scale_down_replicas" -f "$rootPath/$jmeter_slaves_deploy_file"
 
   echo "Scale up master to $_crux_scale_up_replicas_master and slaves to $scale_up_replicas"
   kubectl scale -n "$_cluster_namespace" --replicas="$_crux_scale_up_replicas_master" -f "$rootPath/$jmeter_master_deploy_file"
