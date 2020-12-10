@@ -57,7 +57,6 @@ deploy_to_cluster() {
   local service_slave=$4
   local scale_up_replicas=$5
   local _crux_scale_up_replicas_master=1
-  local scale_down_replicas=0
   local sleep_interval=15
   local jmeter_master_deploy_file=$6
   local jmeter_slaves_deploy_file=$7
@@ -91,10 +90,6 @@ deploy_to_cluster() {
     kubectl create -n "$_cluster_namespace" -f "$rootPath/$jmeter_master_configmap_file"
     kubectl create -n "$_cluster_namespace" -f "$rootPath/$jmeter_master_deploy_file"
   fi
-
-  #echo "Rescaling down and up to assure clean test env. Scaling to 0 first. "
-  #kubectl scale -n "$_cluster_namespace" --replicas="$scale_down_replicas" -f "$rootPath/$jmeter_master_deploy_file"
-  #kubectl scale -n "$_cluster_namespace" --replicas="$scale_down_replicas" -f "$rootPath/$jmeter_slaves_deploy_file"
 
   echo "Scale up master to $_crux_scale_up_replicas_master and slaves to $scale_up_replicas"
   kubectl scale -n "$_cluster_namespace" --replicas="$_crux_scale_up_replicas_master" -f "$rootPath/$jmeter_master_deploy_file"
