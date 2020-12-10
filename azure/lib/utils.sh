@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 function log_warn(){
   local message=${1:-no message provided}
   echo "##[warning]" "$message"
