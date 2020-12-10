@@ -50,7 +50,7 @@ _display_deployment_correctness_status() { #public: #display warning message if 
 
 
 deploy_to_cluster() {
-  local _root_path="$1/kubernetes/config/deployments"
+  local _root_path="$1"/kubernetes/config/deployments
   local _cluster_namespace=$2
   local _service_master=$3
   local _service_slave=$4
@@ -61,11 +61,11 @@ deploy_to_cluster() {
   local _sleep_interval=${9:-15}
 
 
-  declare -r _scale_up_replicas_master=1
-  declare -r _jmeter_master_configmap_file="jmeter_master_configmap.yaml"
-  declare -r _jmeter_shared_volume_file="jmeter_shared_volume.yaml"
-  declare -r _jmeter_shared_volume_sc_file="jmeter_shared_volume_sc.yaml"
-  declare -r _jmeter_slaves_svc_file="jmeter_slaves_svc.yaml"
+  local _scale_up_replicas_master=1
+  local _jmeter_master_configmap_file="jmeter_master_configmap.yaml"
+  local _jmeter_shared_volume_file="jmeter_shared_volume.yaml"
+  local _jmeter_shared_volume_sc_file="jmeter_shared_volume_sc.yaml"
+  local _jmeter_slaves_svc_file="jmeter_slaves_svc.yaml"
 
   if [ -z "$_aks_pool" ]; then
     :
@@ -78,7 +78,7 @@ deploy_to_cluster() {
 
   #re-deploy per defaults
   if kubectl get deployments -n "$_cluster_namespace" | grep "$_service_master"; then
-    echo "Deployments are already present. Skipping new deploy. Use attach.to.existing.kubernetes.yaml if you want to redeploy"
+    echo "Deployments are already present. Skipping new deploy."
   else
     if kubectl get sc -n "$_cluster_namespace" | grep jmeter-shared-disk-sc; then
       echo "Storage class already present. Skipping creation."
