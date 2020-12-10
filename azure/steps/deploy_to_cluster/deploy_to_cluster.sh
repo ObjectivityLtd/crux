@@ -51,7 +51,7 @@ _display_deployment_correctness_status() { #public: #display warning message if 
 
 
 deploy_to_cluster() {
-  local _root_path="$1"/kubernetes/config/deployments
+  local _root_path="$1/kubernetes/config/deployments"
   local _cluster_namespace=$2
   local _service_master=$3
   local _service_slave=$4
