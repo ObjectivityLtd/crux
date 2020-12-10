@@ -10,7 +10,7 @@ _wait_for_pod() { #public: wait for pods of a given type to be in Running state
   local _service_replicas_number=$3
   local _sleep_time_s=$4
   local _status="Terminating"
-  printf "\nWait for service %s pods to be in Running status with interval %s" "$_service" "$_sleep_time_s"
+  log_info "\nWait for service $_service pods to be in Running status with interval $_sleep_time_s"
   until [[ "$_status" == "Running" ]]; do
     sleep "$_sleep_time_s"
     _status="$( \
@@ -19,7 +19,7 @@ _wait_for_pod() { #public: wait for pods of a given type to be in Running state
       | awk '{print $3}' \
       | sort \
       | uniq)" # this will display also old pods until they are gone
-    printf "\nService %s pods statuses: %s " "$_service" "$(echo "$_status" | xargs)"
+    log_info "\nService $_service pods statuses: $(echo "$_status" | xargs)"
   done
 
 }
