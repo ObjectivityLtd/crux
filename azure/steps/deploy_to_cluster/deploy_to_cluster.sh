@@ -24,7 +24,7 @@ _wait_for_pod() { #public: wait for pods of a given type to be in Running state
 
 }
 
-_wait_for_pods() {
+_wait_for_pods() { #public: waits for pods to be running for a list of services
   local _service_namespace=$1
   local _service_replicas_number=$2
   local _sleep_time_s=$3
@@ -35,8 +35,7 @@ _wait_for_pods() {
   done
 
 }
-#display warning message if deployment is not correct e.g. more pods on nodes than allowed
-_display_deployment_correctness_status() {
+_display_deployment_correctness_status() { #public: #display warning message if deployment is not correct e.g. more pods on nodes than allowed
   local _cluster_namespace=$1
   printf "\nDeployment scheduled on: \n %s \n%s" "$(kubectl -n "$_cluster_namespace" get pods -o wide)" "$(kubectl -n "$_cluster_namespace" get svc)"
   local _pods_nodes="$(kubectl get -n "$_cluster_namespace" pods -o wide | awk '{print $7}')"
@@ -49,25 +48,25 @@ _display_deployment_correctness_status() {
   fi
 }
 
-#a bit too many steps but can support both ARM and k8 only
-deploy_to_cluster() {
-  local rootPath="$1"/kubernetes/config/deployments
-  local _cluster_namespace=$2
-  local service_master=$3
-  local service_slave=$4
-  local scale_up_replicas=$5
-  local _crux_scale_up_replicas_master=1
-  local sleep_interval=15
-  local jmeter_master_deploy_file=$6
-  local jmeter_slaves_deploy_file=$7
-  local aks_pool=$8
 
-  if [ -z "$aks_pool" ]; then
+deploy_to_cluster() {
+  local _root_path="$1"/kubernetes/config/deployments
+  local _cluster_namespace=$2
+  local _service_master=$3
+  local _service_slave=$4
+  local _scale_up_replicas_slave=$5
+  local _scale_up_replicas_master=1
+  local _sleep_interval=15
+  local _jmeter_master_deploy_file=$6
+  local _jmeter_slaves_deploy_file=$7
+  local _aks_pool=$8
+
+  if [ -z "$_aks_pool" ]; then
     :
   else
-    sed -i "s/{{agentpool}}/$aks_pool/g" "$rootPath"/*.yaml
+    sed -i "s/{{agentpool}}/$_aks_pool/g" "$_root_path"/*.yaml
   fi
-  echo "Using deployment rules. $jmeter_master_deploy_file and $jmeter_slaves_deploy_file"
+  echo "Using deployment rules. $_jmeter_master_deploy_file and $_jmeter_slaves_deploy_file"
 
   local jmeter_master_configmap_file="jmeter_master_configmap.yaml"
   local jmeter_shared_volume_file="jmeter_shared_volume.yaml"
@@ -75,28 +74,28 @@ deploy_to_cluster() {
   local jmeter_slaves_svc_file="jmeter_slaves_svc.yaml"
 
   #re-deploy per defaults
-  if kubectl get deployments -n "$_cluster_namespace" | grep "$service_master"; then
+  if kubectl get deployments -n "$_cluster_namespace" | grep "$_service_master"; then
     echo "Deployments are already present. Skipping new deploy. Use attach.to.existing.kubernetes.yaml if you want to redeploy"
   else
     if kubectl get sc -n "$_cluster_namespace" | grep jmeter-shared-disk-sc; then
       echo "Storage class already present. Skipping creation."
     else
       echo "Create storage class."
-      kubectl create -n "$_cluster_namespace" -f "$rootPath/$jmeter_shared_volume_sc_file"
+      kubectl create -n "$_cluster_namespace" -f "$_root_path/$jmeter_shared_volume_sc_file"
     fi
-    kubectl create -n "$_cluster_namespace" -f "$rootPath/$jmeter_shared_volume_file"
-    kubectl create -n "$_cluster_namespace" -f "$rootPath/$jmeter_slaves_deploy_file"
-    kubectl create -n "$_cluster_namespace" -f "$rootPath/$jmeter_slaves_svc_file"
-    kubectl create -n "$_cluster_namespace" -f "$rootPath/$jmeter_master_configmap_file"
-    kubectl create -n "$_cluster_namespace" -f "$rootPath/$jmeter_master_deploy_file"
+    kubectl create -n "$_cluster_namespace" -f "$_root_path/$jmeter_shared_volume_file"
+    kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_slaves_deploy_file"
+    kubectl create -n "$_cluster_namespace" -f "$_root_path/$jmeter_slaves_svc_file"
+    kubectl create -n "$_cluster_namespace" -f "$_root_path/$jmeter_master_configmap_file"
+    kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_master_deploy_file"
   fi
 
-  echo "Scale up master to $_crux_scale_up_replicas_master and slaves to $scale_up_replicas"
-  kubectl scale -n "$_cluster_namespace" --replicas="$_crux_scale_up_replicas_master" -f "$rootPath/$jmeter_master_deploy_file"
-  kubectl scale -n "$_cluster_namespace" --replicas="$scale_up_replicas" -f "$rootPath/$jmeter_slaves_deploy_file"
+  echo "Scale up master to $_scale_up_replicas_master and slaves to $_scale_up_replicas_slave"
+  kubectl scale -n "$_cluster_namespace" --replicas="$_scale_up_replicas_master" -f "$_root_path/$_jmeter_master_deploy_file"
+  kubectl scale -n "$_cluster_namespace" --replicas="$_scale_up_replicas_slave" -f "$_root_path/$_jmeter_slaves_deploy_file"
 
-  _wait_for_pods "$_cluster_namespace" $_crux_scale_up_replicas_master $sleep_interval $service_master
-  _wait_for_pods "$_cluster_namespace" $scale_up_replicas $sleep_interval $service_slave
+  _wait_for_pods "$_cluster_namespace" $_scale_up_replicas_master $_sleep_interval $_service_master
+  _wait_for_pods "$_cluster_namespace" $_scale_up_replicas_slave $_sleep_interval $_service_slave
   _display_deployment_correctness_status "$_cluster_namespace"
 }
 
