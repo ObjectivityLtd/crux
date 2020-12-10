@@ -1,7 +1,9 @@
 #!/bin/bash
 #help functions
 
-source ../../lib/utils.sh|:
+SCRIPT=$(realpath "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
+source "$SCRIPTPATH"/../../lib/utils.sh |:
 
 _wait_for_pod() { #public: wait for pods of a given type to be in Running state
   local _service_replicas="0/1"
