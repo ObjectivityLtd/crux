@@ -58,7 +58,7 @@ deploy_to_cluster() {
   local _jmeter_master_deploy_file=$6
   local _jmeter_slaves_deploy_file=$7
   local _aks_pool=$8
-  local _sleep_interval=${9:-15}
+  local _sleep_interval=15
 
 
   local _scale_up_replicas_master=1
