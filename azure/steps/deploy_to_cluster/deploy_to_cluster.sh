@@ -10,7 +10,7 @@ _wait_for_pod() { #public: wait for pods of a given type to be in Running state
   local _service_replicas_number=$3
   local _sleep_time_s=$4
   local _status="Terminating"
-  printf "\nWait for service %s pods to be in Running status with interval %s" "$_service" "$_sleep_time_s"
+  log_info "\nWait for service %s pods to be in Running status with interval %s" "$_service" "$_sleep_time_s"
   until [[ "$_status" == "Running" ]]; do
     sleep "$_sleep_time_s"
     _status="$( \
@@ -19,7 +19,7 @@ _wait_for_pod() { #public: wait for pods of a given type to be in Running state
       | awk '{print $3}' \
       | sort \
       | uniq)" # this will display also old pods until they are gone
-    printf "\nService %s pods statuses: %s " "$_service" "$(echo "$_status" | xargs)"
+    log_info "\nService %s pods statuses: %s " "$_service" "$(echo "$_status" | xargs)"
   done
 
 }
@@ -37,7 +37,7 @@ _wait_for_pods() { #public: waits for pods to be running for a list of services
 }
 _display_deployment_correctness_status() { #public: #display warning message if deployment is not correct e.g. more pods on nodes than allowed
   local _cluster_namespace=$1
-  printf "\nDeployment scheduled on: \n %s \n%s" "$(kubectl -n "$_cluster_namespace" get pods -o wide)" "$(kubectl -n "$_cluster_namespace" get svc)"
+  log_info "\nDeployment scheduled on: \n %s \n%s" "$(kubectl -n "$_cluster_namespace" get pods -o wide)" "$(kubectl -n "$_cluster_namespace" get svc)"
   local _pods_nodes="$(kubectl get -n "$_cluster_namespace" pods -o wide | awk '{print $7}')"
   local _pods_deployed_count="$(echo "$_pods_nodes" | wc -l)"
   local _nodes_used_count="$(echo "$_pods_nodes" | sort | uniq | wc -l)"
@@ -71,7 +71,7 @@ deploy_to_cluster() {
   if [ -n "$_aks_pool" ]; then
     sed -i "s/{{agentpool}}/$_aks_pool/g" "$_root_path"/*.yaml
   fi
-  echo "Using deployment rules. $_jmeter_master_deploy_file and $_jmeter_slaves_deploy_file"
+  log_info "Using deployment rules. $_jmeter_master_deploy_file and $_jmeter_slaves_deploy_file"
 
 
 
@@ -80,9 +80,9 @@ deploy_to_cluster() {
     echo "Deployments are already present. Skipping new deploy."
   else
     if kubectl get sc -n "$_cluster_namespace" | grep jmeter-shared-disk-sc; then
-      echo "Storage class already present. Skipping creation."
+      log_info "Storage class already present. Skipping creation."
     else
-      echo "Create storage class."
+      log_info "Create storage class."
       kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_shared_volume_sc_file"
     fi
     kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_shared_volume_file"
@@ -92,7 +92,7 @@ deploy_to_cluster() {
     kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_master_deploy_file"
   fi
 
-  echo "Scale up master to $_scale_up_replicas_master and slaves to $_scale_up_replicas_slave"
+  log_info "Scale up master to $_scale_up_replicas_master and slaves to $_scale_up_replicas_slave"
   kubectl scale -n "$_cluster_namespace" --replicas="$_scale_up_replicas_master" -f "$_root_path/$_jmeter_master_deploy_file"
   kubectl scale -n "$_cluster_namespace" --replicas="$_scale_up_replicas_slave" -f "$_root_path/$_jmeter_slaves_deploy_file"
 
