@@ -1,7 +1,7 @@
 #!/bin/bash
 #help functions
 
-source ../../lib/utils.sh
+source ../../lib/utils.sh|:
 
 _wait_for_pod() { #public: wait for pods of a given type to be in Running state
   local _service_replicas="0/1"
@@ -49,7 +49,7 @@ _display_deployment_correctness_status() { #public: #display warning message if 
   fi
 }
 
-replace_aks_pool_name(){
+_replace_aks_pool_name(){
   local _aks_pool=$1
   local _root_path=$2
   sed -i "s/{{agentpool}}/$_aks_pool/g" "$_root_path"/*.yaml
@@ -72,7 +72,7 @@ deploy_to_cluster() {
   local _jmeter_slaves_svc_file="jmeter_slaves_svc.yaml"
 
   if [ -n "$_aks_pool" ]; then
-   replace_aks_pool_name "$_aks_pool" "$_root_path"
+   _replace_aks_pool_name "$_aks_pool" "$_root_path"
   fi
   log_info "Using deployment rules. $_jmeter_master_deploy_file and $_jmeter_slaves_deploy_file"
 
@@ -100,7 +100,9 @@ deploy_to_cluster() {
   _wait_for_pods "$_cluster_namespace" "$_scale_up_replicas_slave" $_sleep_interval "$_service_slave"
   _display_deployment_correctness_status "$_cluster_namespace"
 }
-
+foo(){
+  log_info "xxx"
+}
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   deploy_to_cluster "$@"
 fi
