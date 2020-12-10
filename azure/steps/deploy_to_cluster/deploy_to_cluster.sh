@@ -1,9 +1,7 @@
 #!/bin/bash
 #help functions
 
-SCRIPT=$(realpath "$0")
-SCRIPTPATH=$(dirname "$SCRIPT")
-source "$SCRIPTPATH"/../../lib/utils.sh |:
+source "$PWD"/../../lib/utils.sh |:
 
 _wait_for_pod() { #public: wait for pods of a given type to be in Running state
   local _service_replicas="0/1"
@@ -102,9 +100,7 @@ deploy_to_cluster() {
   _wait_for_pods "$_cluster_namespace" "$_scale_up_replicas_slave" $_sleep_interval "$_service_slave"
   _display_deployment_correctness_status "$_cluster_namespace"
 }
-foo(){
-  log_info "xxx"
-}
+
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   deploy_to_cluster "$@"
 fi
