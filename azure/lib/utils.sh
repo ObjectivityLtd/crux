@@ -1,17 +1,17 @@
 function log_warn(){
   local message=${1:-no message provided}
   echo ""
-  echo "##[warning] WARN: %s" "$message"
+  echo "##[warning]" "$message"
 }
 function log_info(){
   local message=${1:-no message provided}
   echo ""
-  echo "##[info] INFO: %s" "$message"
+  echo "##[info]" "$message"
 }
 function log_error(){
   local message=${1:-no message provided}
   echo ""
-  echo "##[error] ERROR: %s" "$message"
+  echo "##[error]" "$message"
 }
 function mark_task_complete_with_issues(){
   local message=${1:-DONE}
