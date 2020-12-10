@@ -86,7 +86,7 @@ deploy_to_cluster() {
       echo "Create storage class."
       kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_shared_volume_sc_file"
     fi
-    kubectl create -n "$_cluster_namespace" -f "$_root_path/$jmeter_shared_volume_file"
+    kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_shared_volume_file"
     kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_slaves_deploy_file"
     kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_slaves_svc_file"
     kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_master_configmap_file"
