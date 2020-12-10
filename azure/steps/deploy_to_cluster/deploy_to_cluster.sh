@@ -50,16 +50,22 @@ _display_deployment_correctness_status() { #public: #display warning message if 
 
 
 deploy_to_cluster() {
-  local _root_path="$1"/kubernetes/config/deployments
+  local _root_path="$1/kubernetes/config/deployments"
   local _cluster_namespace=$2
   local _service_master=$3
   local _service_slave=$4
   local _scale_up_replicas_slave=$5
-  local _scale_up_replicas_master=1
-  local _sleep_interval=15
   local _jmeter_master_deploy_file=$6
   local _jmeter_slaves_deploy_file=$7
   local _aks_pool=$8
+  local _sleep_interval=${9:-15}
+
+
+  declare -r _scale_up_replicas_master=1
+  declare -r _jmeter_master_configmap_file="jmeter_master_configmap.yaml"
+  declare -r _jmeter_shared_volume_file="jmeter_shared_volume.yaml"
+  declare -r _jmeter_shared_volume_sc_file="jmeter_shared_volume_sc.yaml"
+  declare -r _jmeter_slaves_svc_file="jmeter_slaves_svc.yaml"
 
   if [ -z "$_aks_pool" ]; then
     :
@@ -68,10 +74,7 @@ deploy_to_cluster() {
   fi
   echo "Using deployment rules. $_jmeter_master_deploy_file and $_jmeter_slaves_deploy_file"
 
-  local jmeter_master_configmap_file="jmeter_master_configmap.yaml"
-  local jmeter_shared_volume_file="jmeter_shared_volume.yaml"
-  local jmeter_shared_volume_sc_file="jmeter_shared_volume_sc.yaml"
-  local jmeter_slaves_svc_file="jmeter_slaves_svc.yaml"
+
 
   #re-deploy per defaults
   if kubectl get deployments -n "$_cluster_namespace" | grep "$_service_master"; then
@@ -81,12 +84,12 @@ deploy_to_cluster() {
       echo "Storage class already present. Skipping creation."
     else
       echo "Create storage class."
-      kubectl create -n "$_cluster_namespace" -f "$_root_path/$jmeter_shared_volume_sc_file"
+      kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_shared_volume_sc_file"
     fi
     kubectl create -n "$_cluster_namespace" -f "$_root_path/$jmeter_shared_volume_file"
     kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_slaves_deploy_file"
-    kubectl create -n "$_cluster_namespace" -f "$_root_path/$jmeter_slaves_svc_file"
-    kubectl create -n "$_cluster_namespace" -f "$_root_path/$jmeter_master_configmap_file"
+    kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_slaves_svc_file"
+    kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_master_configmap_file"
     kubectl create -n "$_cluster_namespace" -f "$_root_path/$_jmeter_master_deploy_file"
   fi
 
