@@ -14,7 +14,7 @@ function log_error(){
   echo "##[error] LOG: %s" "$message"
 }
 function mark_task_complete_with_issues(){
-  local message=${1:-Complete with issues}
+  local message=${1:-DONE}
   echo ""
   echo "##vso[task.complete result=SucceededWithIssues;]$message"
 }

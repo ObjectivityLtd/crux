@@ -45,7 +45,7 @@ _display_deployment_correctness_status() { #public: #display warning message if 
   echo "$_pods_deployed_count $__nodes_used_count"
   if [ "$_pods_deployed_count" -gt "$_nodes_used_count" ]; then
     log_warn "There are more jmeter pods scheduled than nodes. You should not do that! Read why https://github.com/ObjectivityLtd/crux/wiki/FAQ"
-    mark_task_complete_with_issues "DONE"
+    mark_task_complete_with_issues
   fi
 }
 
