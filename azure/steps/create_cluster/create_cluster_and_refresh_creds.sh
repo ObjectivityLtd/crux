@@ -19,8 +19,6 @@ create_cluster_and_refresh_creds() { #public: created cluster and refreshes vari
   _refresh_creds "$_resource_group" "${!_output_variable_for_cluster_name}"
 
 }
-
-
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   create_cluster_and_refresh_creds "$@"
 fi

@@ -28,7 +28,6 @@ create_cluster() { #public: creates a cluster with dynamically assigned name and
   echo ", value: ${!_output_variable_for_cluster_name}"
 }
 
-
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   create_cluster "$@"
 fi
