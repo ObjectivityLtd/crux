@@ -9,20 +9,20 @@ function setup(){
   create_cluster(){
     echo "Called $FUNCNAME"
   }
-  refresh_creds(){
+  _refresh_creds(){
     echo "Called $FUNCNAME"
   }
   source(){
     :
   }
-  export -f refresh_creds create_cluster source
+  export -f _refresh_creds create_cluster source
 }
 function teardown(){
   unset source
 }
 
-@test "UT:create_cluster_and_refresh_creds: should call create cluster and refresh creds" {
+@test "UT:create_cluster_and_refresh_creds: should call create_cluster and _refresh_creds" {
   run create_cluster_and_refresh_creds 1 2 3 4 5 6 7 8
   assert_output --partial "Called create_cluster"
-  assert_output --partial "Called refresh_creds"
+  assert_output --partial "Called _refresh_creds"
 }

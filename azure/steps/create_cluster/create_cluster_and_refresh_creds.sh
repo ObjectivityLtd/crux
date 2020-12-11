@@ -1,5 +1,5 @@
 #!/bin/bash
-refresh_creds(){ #public: refreshes credentials for kubectl command
+_refresh_creds(){ #public: refreshes credentials for kubectl command
   local _resource_group=$1
   local _cluster_name=$2
   az aks get-credentials --resource-group "$_resource_group" --name "$_cluster_name" --overwrite-existing
@@ -16,7 +16,7 @@ create_cluster_and_refresh_creds() { #public: created cluster and refreshes vari
 
   source "$path"/create_cluster.sh
   create_cluster "$_deployment_name" "$_resource_group" "$_template_file" "$_node_size" "$_node_count" "$_cluster_name_prefix" "$_output_variable_for_cluster_name"
-  refresh_creds "$_resource_group" "${!_output_variable_for_cluster_name}"
+  _refresh_creds "$_resource_group" "${!_output_variable_for_cluster_name}"
 
 }
 
