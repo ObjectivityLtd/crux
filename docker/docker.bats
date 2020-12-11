@@ -61,10 +61,10 @@ teardown_file(){
 }
 
 @test "E2E: JMeter WebDriver Sampler scenario with Chrome Headless is run fine within the container" {
-  local result_file=results.csv
+  local _result_file=results.csv
   local _test_scenario=selenium_test_chrome_headless.jmx
   #WHEN I run a jmeter test that use chrome headless and webdriver and I print result file to stdout
-  run docker run $RUN_OPTS "$TEST_IMAGE_NAME" jmeter -Jwebdriver.sampleresult_class=com.googlecode.jmeter.plugins.webdriver.sampler.SampleResultWithSubs -n -l $result_file -t $_test_scenario
+  run docker run $RUN_OPTS "$TEST_IMAGE_NAME" jmeter -Jwebdriver.sampleresult_class=com.googlecode.jmeter.plugins.webdriver.sampler.SampleResultWithSubs -n -l $_result_file -t $_test_scenario
   #Then test is a success
   refute_output --partial CannotResolveClassException
   assert_output --partial "$JMETER_TESTS_SUCCESSFULL_OUTPUT"
