@@ -1,12 +1,10 @@
-delete_nodepool() {
-   local nodepool_name=$1
-   local cluster_name=$2
-   local resource_group=$3
-
-   echo "##[info] Using cluster $cluster_name"
-   echo "Deleting pool on $cluster_name... "
-   echo "##[command] az aks nodepool delete -g "$resource_group" --cluster-name "$cluster_name" --name "$nodepool_name" --no-wait"
-   az aks nodepool delete -g "$resource_group" --cluster-name "$cluster_name" --name "$nodepool_name" --no-wait
+delete_nodepool() { #public: deletes nodepool used for test run on the cluster
+   local _nodepool_name=$1
+   local _cluster_name=$2
+   local _resource_group=$3
+   echo "##[info] Deleting $__nodepool_name pool on $_cluster_name... "
+   echo "##[command] az aks nodepool delete -g "$_resource_group" --cluster-name "$_cluster_name" --name "$_nodepool_name" --no-wait"
+   az aks nodepool delete -g "$_resource_group" --cluster-name "$_cluster_name" --name "$_nodepool_name" --no-wait
 }
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   delete_nodepool "$@"
