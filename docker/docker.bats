@@ -53,9 +53,9 @@ teardown_file(){
   local _cmd_start_sts="screen -A -m -d -S sts /jmeter/apache-jmeter-*/bin/simple-table-server.sh -DjmeterPlugin.sts.addTimestamp=true -DjmeterPlugin.sts.datasetDirectory=/test "
   local _wait_for_sts="sleep 2" #time for sts to start, need to be refactored to conditional loop
   local _cmd_execute_jmeter_test="jmeter -n -t $_test_scenario"
-  local cmd="$_cmd_start_sts && $_wait_for_sts && $_cmd_execute_jmeter_test"
+  local _cmd="$_cmd_start_sts && $_wait_for_sts && $_cmd_execute_jmeter_test"
   #WHEN I run a jmeter test that use chrome headless and webdriver and I print result file to stdout
-  run docker run "${RUN_OPTS[*]}" "$TEST_IMAGE_NAME_MASTER" /bin/bash -c "$cmd"
+  run docker run $RUN_OPTS "$TEST_IMAGE_NAME_MASTER" /bin/bash -c "$_cmd"
   #Then test is a success
   assert_output --partial  "$JMETER_TESTS_SUCCESSFULL_OUTPUT"
 }
@@ -64,53 +64,53 @@ teardown_file(){
   local result_file=results.csv
   local _test_scenario=selenium_test_chrome_headless.jmx
   #WHEN I run a jmeter test that use chrome headless and webdriver and I print result file to stdout
-  run docker run "${RUN_OPTS[*]}" $TEST_IMAGE_NAME jmeter -Jwebdriver.sampleresult_class=com.googlecode.jmeter.plugins.webdriver.sampler.SampleResultWithSubs -n -l $result_file -t $_test_scenario
+  run docker run $RUN_OPTS "$TEST_IMAGE_NAME" jmeter -Jwebdriver.sampleresult_class=com.googlecode.jmeter.plugins.webdriver.sampler.SampleResultWithSubs -n -l $result_file -t $_test_scenario
   #Then test is a success
   refute_output --partial CannotResolveClassException
   assert_output --partial "$JMETER_TESTS_SUCCESSFULL_OUTPUT"
 }
 
 @test "IT: Chromedriver 84 is installed " {
-  run docker run "${RUN_OPTS[*]}" $TEST_IMAGE_NAME chromedriver --version
+  run docker run $RUN_OPTS "$TEST_IMAGE_NAME" chromedriver --version
   #Then it is successful
   assert_output --partial "ChromeDriver 84."
 }
 
 @test "IT: Chrome 84 is installed" {
-  run docker run "${RUN_OPTS[*]}" $TEST_IMAGE_NAME google-chrome --version
+  run docker run $RUN_OPTS "$TEST_IMAGE_NAME" google-chrome --version
   #Then it is successful
   echo $output
   assert_output --partial "Google Chrome 84."
 }
 
 @test "IT: Python 2.7 is installed" {
-  run docker run  "${RUN_OPTS[*]}" $TEST_IMAGE_NAME python --version
+  run docker run  $RUN_OPTS "$TEST_IMAGE_NAME" python --version
   #Then it is successful
   assert_output --partial "Python 2.7."
 }
 
 @test "IT: Groovy 2.4 is installed" {
-  run docker run "${RUN_OPTS[*]}" $TEST_IMAGE_NAME groovy --version
+  run docker run $RUN_OPTS "$TEST_IMAGE_NAME" groovy --version
   #Then it is successful
   assert_output --partial "Groovy Version: 2.4."
 }
 
 @test "IT: OpenJDK 1.8 is installed" {
-  run docker run "${RUN_OPTS[*]}" $TEST_IMAGE_NAME java -version
+  run docker run $RUN_OPTS "$TEST_IMAGE_NAME" java -version
   #Then it is successful
   assert_output --partial "1.8."
 }
 
 @test "IT: Chrome Headless works fine when used in python script" {
   #WHEN I run test that use chrome headless
-  run docker run "${RUN_OPTS[*]}" $TEST_IMAGE_NAME python test.py
+  run docker run $RUN_OPTS "$TEST_IMAGE_NAME" python test.py
   #Then they are successful
   assert_success
 }
 
 @test "IT: JMeter 5.3 is present" {
   #WHEN I run test that use chrome headless
-  run docker run "${RUN_OPTS[*]}" "$TEST_IMAGE_NAME" jmeter --version
+  run docker run $RUN_OPTS "$TEST_IMAGE_NAME" jmeter --version
   #Then they are successful
   assert_output --partial "\ 5.3"
 }
