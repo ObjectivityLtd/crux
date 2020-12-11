@@ -20,7 +20,7 @@ create_cluster() { #public: creates a cluster with dynamically assigned name and
           clusterNamePrefix="$_cluster_name_prefix" \
           )
 
-  local _cluster_name=$(echo $output |jq -r '.properties.outputs.name.value')
+  local _cluster_name=$(echo "$output" |jq -r '.properties.outputs.name.value')
   echo "Cluster name created: $_cluster_name"
   echo "##vso[task.setvariable variable=$_output_variable_for_cluster_name]${_cluster_name}" #set in pipeline for subsequent steps
   printf -v "$_output_variable_for_cluster_name" "$_cluster_name" #set in script, this is required because azure task will not set it for current script only subsequent steps

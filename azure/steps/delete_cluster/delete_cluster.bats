@@ -3,29 +3,23 @@
 
 load $HOME/test/test_helper/bats-assert/load.bash
 load $HOME/test/test_helper/bats-support/load.bash
+load $HOME/test/'test_helper/bats-support/load.bash'
 
-function setup(){
+setup(){
   source "$BATS_TEST_DIRNAME/delete_cluster.sh"
-}
-
-
-@test "UT:delete_cluster: should print confirm message" {
   az(){
-    :
+    echo "$*"
   }
   export -f az
   run delete_cluster "cluster_name" "resource_group"
-  assert_success
-  assert_output "Cluster cluster_name:resource_group has been scheduled for deletion."
+}
+teradown(){
   unset az
 }
-
+@test "UT:delete_cluster: should print confirm message" {
+  assert_success
+  assert_output --partial "Cluster cluster_name:resource_group has been scheduled for deletion."
+}
 @test "UT:delete_cluster: deletion should be asynchronous and without confirmation" {
-  az(){
-    :
-  }
-
-  run cat "$BATS_TEST_DIRNAME/delete_cluster.sh"
-  assert_output --partial "--yes --no-wait"
-
+  assert_output --partial "aks delete --name cluster_name --resource-group resource_group --yes --no-wait"
 }

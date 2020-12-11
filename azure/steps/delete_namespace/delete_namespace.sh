@@ -1,14 +1,12 @@
 #!/bin/bash
-deleteNamespace(){
-  local cluster_namespace=$1
-  if [ "$namespace" != "default" ];then
-    echo "Deleting namespace $cluster_namespace"
-    kubectl delete namespace "$cluster_namespace"
+delete_namespace() { #public: deletes namespace together with all pods inside
+  local _cluster_namespace=$1
+  if [ "$_cluster_namespace" != "default" ]; then
+    echo "Deleting namespace $_cluster_namespace"
+    kubectl delete namespace "$_cluster_namespace"
   fi
-
 }
 
-
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  deleteNamespace "$@"
+  delete_namespace "$@"
 fi

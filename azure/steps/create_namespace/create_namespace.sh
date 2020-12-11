@@ -1,16 +1,13 @@
 #!/bin/bash
-create_namespace(){
-  local cluster_namespace=$1
-    #create namespace
-  if kubectl get namespaces | grep "$cluster_namespace" ; then
-    echo "Namespace $cluster_namespace already present"
+create_namespace(){ #public: creates a namespace for kubectl deployment so each test run executes in separate namespace
+  local _cluster_namespace=$1
+  if kubectl get namespaces | grep "$_cluster_namespace" ; then
+    echo "Namespace $_cluster_namespace already present"
   else
-    echo "Creating namespace $cluster_namespace"
-    kubectl create namespace "$cluster_namespace"
+    echo "Creating namespace $_cluster_namespace"
+    kubectl create namespace "$_cluster_namespace"
   fi
 }
-
-
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   create_namespace "$@"
 fi
