@@ -16,5 +16,5 @@ steps:
         $(_crux_cluster_node_size)
         $(_crux_cluster_default_node_number)
         perf_$(Build.BuildID)_
-        cname
+        _crux_created_cluster_name
         $(_crux_steps_path)/create_cluster

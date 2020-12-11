@@ -14,7 +14,7 @@ steps:
         scriptPath: $(_crux_steps_path)/delete_nodepool/delete_nodepool.sh
         arguments: crux$(Build.BuildID) $(_crux_cluster_name) $(_crux_cluster_resource_group)
 
-  - ${{ if and(ne(parameters.mode,'tests'),eq(parameters.mode,'jmeter_dynamic')) }}: #dynamic cluster name cname becomes available:
+  - ${{ if and(ne(parameters.mode,'tests'),eq(parameters.mode,'jmeter_dynamic')) }}: #dynamic cluster name _crux_created_cluster_name becomes available:
       - task: AzureCLI@2
         condition: and(always(), not(eq(variables._crux_delete_nodepool, false)))
         displayName: Delete dedicated nodepool
@@ -23,4 +23,4 @@ steps:
           azureSubscription: $(_crux_arm_service_connection)
           scriptType: bash
           scriptPath: $(_crux_steps_path)/delete_nodepool/delete_nodepool.sh
-          arguments: crux$(Build.BuildID) $(cname) $(_crux_cluster_resource_group)
+          arguments: crux$(Build.BuildID) $(_crux_created_cluster_name) $(_crux_cluster_resource_group)

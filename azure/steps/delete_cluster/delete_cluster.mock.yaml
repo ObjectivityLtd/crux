@@ -9,4 +9,4 @@ steps:
       azureSubscription: $(_crux_arm_service_connection)
       scriptType: bash
       scriptPath: $(_crux_steps_path)/delete_cluster/delete_cluster.sh
-      arguments: $(cname) $(_crux_cluster_resource_group)
+      arguments: $(_crux_created_cluster_name) $(_crux_cluster_resource_group)
