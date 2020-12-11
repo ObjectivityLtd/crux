@@ -4,7 +4,7 @@ load $HOME/test/'test_helper/bats-assert/load.bash'
 load $HOME/test/'test_helper/bats-support/load.bash'
 
 TEST_IMAGE_NAME="${TEST_IMAGE_NAME:-gabrielstar/crux-base:latest}"
-TEST_IMAGE_NAME_MASTER="gabrielstar/crux-master:latest"
+TEST_IMAGE_NAME_MASTER="${TEST_IMAGE_NAME_MASTER:-gabrielstar/crux-master:latest}"
 TEST_IMAGE_NAME_SLAVE="${TEST_IMAGE_NAME_SLAVE:-gabrielstar/crux-slave:latest}"
 RUN_OPTS="--shm-size=1g --rm"
 JMETER_TESTS_SUCCESSFULL_OUTPUT="Err:     0 (0.00%)"
@@ -42,7 +42,7 @@ teardown_file(){
   local _cmd_execute_jmeter_test="jmeter -n -t $_test_scenario"
   local _cmd="$_cmd_start_sts && $_wait_for_sts && $_cmd_execute_jmeter_test"
   #WHEN I run a jmeter test that use chrome headless and webdriver and I print result file to stdout
-  run docker run $RUN_OPTS $TEST_IMAGE_NAME_MASTER /bin/bash -c "$_cmd"
+  run docker run $RUN_OPTS "$TEST_IMAGE_NAME_MASTER" /bin/bash -c "$_cmd"
   #Then test is a success
   assert_output --partial  "$JMETER_TESTS_SUCCESSFULL_OUTPUT"
 }
@@ -55,7 +55,7 @@ teardown_file(){
   local _cmd_execute_jmeter_test="jmeter -n -t $_test_scenario"
   local cmd="$_cmd_start_sts && $_wait_for_sts && $_cmd_execute_jmeter_test"
   #WHEN I run a jmeter test that use chrome headless and webdriver and I print result file to stdout
-  run docker run $RUN_OPTS $TEST_IMAGE_NAME_MASTER /bin/bash -c "$cmd"
+  run docker run $RUN_OPTS "$TEST_IMAGE_NAME_MASTER" /bin/bash -c "$cmd"
   #Then test is a success
   assert_output --partial  "$JMETER_TESTS_SUCCESSFULL_OUTPUT"
 }
