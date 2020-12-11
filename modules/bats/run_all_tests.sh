@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 
-function runModuleTests(){
- local here=$(pwd)
- local module=$1
- local test_folder=$2
- printf "\n# Running tests for module $module\n"
- cd ../$module && bats -r . --formatter junit --output "$test_folder"
- cd "$here"
+function _run_module_tests() {
+  local _here=$(pwd)
+  local _module=$1
+  local _test_folder=$2
+  printf "\n# Running tests for _module %s\n" "$_module"
+  cd ../"$_module" && bats -r . --formatter junit --output "$_test_folder"
+  cd "$_here"
 }
-function runAll(){
-  result_folder=$(pwd)/tmp
-  mkdir -p "$result_folder"
-  runModuleTests junit "$result_folder"
-  runModuleTests ../azure "$result_folder"
-  runModuleTests ../kubernetes/bin "$result_folder"
+function run_all() {
+  local _result_folder=$(pwd)/tmp
+  mkdir -p "$_result_folder"
+  _run_module_tests junit "$_result_folder"
+  _run_module_tests ../azure "$_result_folder"
+  _run_module_tests ../kubernetes/bin "$_result_folder"
 }
-
-runAll
+run_all
