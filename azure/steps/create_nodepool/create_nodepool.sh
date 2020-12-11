@@ -26,7 +26,7 @@ _confirm_pool_created() { #public: verifies pool has been created
     echo "##vso[task.complete result=Failed;]DONE"
   fi
 }
-create_nodepool() {#public: creates a nodepool for test run inside specified cluster, size equal to # slaves replicase + 1 master for 1-1 pod/node distribution
+create_nodepool() { #public: creates a nodepool for test run inside specified cluster, size equal to # slaves replicase + 1 master for 1-1 pod/node distribution
   local _nodepool_name=$1
   local _cluster_name=$2
   local _crux_label=$3
