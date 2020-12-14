@@ -58,19 +58,7 @@ _clean_pods() { #public: cleans folders before test
     kubectl exec -i -n "$_cluster_namespace" "$_pod" -- bash -c "rm -Rf $_test_dir/*.jmx"
   done
 }
-#this should be sequential copy instead of shared drive because of IO
-_download_server_logs() {
-  local _cluster_namespace=$1
-  local _server_logs_dir=$2
-  shift 2
-  local _slave_pods_array=("$@")
-  echo "Archiving server logs"
-  for _pod in "${_slave_pods_array[@]}"; do
-    echo "Getting jmeter-server.log on $_pod"
-    kubectl cp "$_cluster_namespace/$_pod:/test/jmeter-server.log" "$_server_logs_dir/$_pod-jmeter-server.log"
-  done
-}
-_list_pods_contents() {
+_list_pods_contents() { #public: display conetnts of /shared and /test folder on all k8 pods
   local _cluster_namespace=$1
   local _test_dir=$2
   local _shared_mount=$3
@@ -144,6 +132,19 @@ _download_test_results() {
   kubectl cp "$_cluster_namespace/$_master_pod:/test/errors.xml" "$_working_dir/../../../kubernetes/tmp/errors.xml"
   head -n10 "$_working_dir/../../../kubernetes/tmp/results.csv"
 }
+#this should be sequential copy instead of shared drive because of IO
+_download_server_logs() {
+  local _cluster_namespace=$1
+  local _server_logs_dir=$2
+  local _test_dir=$3
+  shift 3
+  local _slave_pods_array=("$@")
+  echo "Archiving server logs"
+  for _pod in "${_slave_pods_array[@]}"; do
+    echo "Getting jmeter-server.log on $_pod"
+    kubectl cp "$_cluster_namespace/$_pod:/$_test_dir/jmeter-server.log" "$_server_logs_dir/$_pod-jmeter-server.log"
+  done
+}
 
 jmeter() {
   #server logs need to be copied back instead of writing to a shared drive because of IO
@@ -169,7 +170,7 @@ jmeter() {
   _list_pods_contents "$_cluster_namespace" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}" #OK
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME" "$REPORT_ARGS" "$USER_ARGS"
   _download_test_results "$_cluster_namespace" "$MASTER_POD" "$LOCAL_REPORT_DIR" "$REPORT_DIR" "$TMP" "$WORKING_DIR"
-  #_download_server_logs "$_cluster_namespace" "$LOCAL_SERVER_LOGS_DIR" "${SLAVE_PODS_ARRAY[@]}"
+  _download_server_logs "$_cluster_namespace" "$LOCAL_SERVER_LOGS_DIR" "$TEST_DIR" "${SLAVE_PODS_ARRAY[@]}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
