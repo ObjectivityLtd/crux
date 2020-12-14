@@ -26,7 +26,7 @@ _prepare_env() {
   local _cluster_namespace=$1
   #delete evicted pods first
   kubectl get pods -n "$_cluster_namespace" --field-selector 'status.phase==Failed' -o json | kubectl delete -f -
-  master_pod=$(kubectl get po -n "$_cluster_namespace" | grep Running | grep jmeter-master | awk '{print $1}')
+  _master_pod=$(kubectl get po -n "$_cluster_namespace" | grep Running | grep jmeter-master | awk '{print $1}')
   #create necessary dirs
   mkdir -p "$local_report_dir" "$server_logs_dir"
 }
