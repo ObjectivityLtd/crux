@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
 function _set_variables() { #public: sets shared variables for the script
-  WORKING_DIR="$(pwd)"
   JMX="$1"
   DATA_DIR="$2"
   USER_ARGS="$4"
-  ROOT_DIR=$WORKING_DIR/../../../
+  ROOT_DIR="$(pwd)/../../../"
   LOCAL_REPORT_DIR="$ROOT_DIR/kubernetes/tmp/report"
   LOCAL_SERVER_LOGS_DIR="$ROOT_DIR/kubernetes/tmp/server_logs"
   REPORT_DIR=report
