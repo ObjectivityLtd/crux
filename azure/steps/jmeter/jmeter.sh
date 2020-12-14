@@ -89,8 +89,7 @@ _copy_data_to_shared_drive() {
     local _root_dir=$3
     local _shared_mount=$4
     local _data_dir=$5
-    local _folder_base
-    name=$(echo "${_data_dir##*/}")
+    local _folder_basename=$(echo "${_data_dir##*/}")
     echo "Copying contents of repository $_folder_basename directory to pod : $_master_pod"
     kubectl cp "$_root_dir/$_data_dir" -n "$_cluster_namespace" "$_master_pod:$_shared_mount/"
     echo "Unpacking data on pod : $_master_pod to $_shared_mount folder"
