@@ -12,7 +12,7 @@ function _set_variables() { #public: sets shared variables for the script
   REPORT_DIR=report
   TEST_DIR=/test
   TMP=/tmp
-  REPORT_ARGS="-o $TMP/$REPORT_DIR -l $tmp/results.csv -e"
+  REPORT_ARGS="-o $TMP/$REPORT_DIR -l $TMP/results.csv -e"
   TEST_NAME="$(basename "$ROOT_DIR/$JMX")"
   SHARED_MOUNT="/shared"
   ERROR_FILE="errors.xml"

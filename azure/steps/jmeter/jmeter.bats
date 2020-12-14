@@ -7,14 +7,6 @@ setup(){
   source "$BATS_TEST_DIRNAME/jmeter.sh"
   test_tmp_dir=$BATS_TMPDIR
 }
-setFakeVARS(){
-  report_args=report_args
-  user_args=user_args
-  master_pod=master_pod
-  report_dir=report_dir
-  local_report_dir=local_report_dir
-  working_dir=working_dir
-}
 
 @test "UT: _download_test_results copies report, results.csv, errors.xml and jmeter.log from master pod to local drive" {
   kubectl(){
@@ -24,10 +16,10 @@ setFakeVARS(){
     :
   }
   export -f kubectl head
-  setFakeVARS
-  run _download_test_results cluster_namespace master_pod local_report_dir
-  assert_output --partial "cp cluster_namespace/master_pod:/report_dir local_report_dir/"
-  assert_output --partial "cp cluster_namespace/master_pod:/results.csv working_dir/../../../kubernetes/tmp/results.csv"
+  
+  run _download_test_results cluster_namespace master_pod local_report_dir report_dir '/tmp' working_dir
+  assert_output --partial "cp cluster_namespace/master_pod:/tmp/report_dir local_report_dir/"
+  assert_output --partial "cp cluster_namespace/master_pod:/tmp/results.csv working_dir/../../../kubernetes/tmp/results.csv"
   assert_output --partial "cluster_namespace/master_pod:/test/jmeter.log working_dir/../../../kubernetes/tmp/jmeter.log"
   assert_output --partial "cluster_namespace/master_pod:/test/errors.xml working_dir/../../../kubernetes/tmp/errors.xml"
   unset head
@@ -39,8 +31,8 @@ setFakeVARS(){
     echo "$@"
   }
   export -f kubectl
-  setFakeVARS
-  run _run_jmeter_test cluster_namespace master_pod test_name
+  
+  run _run_jmeter_test cluster_namespace master_pod test_name report_args user_args
   assert_output --partial "exec -i -n cluster_namespace master_pod -- /bin/bash /load_test test_name  report_args user_args"
 }
 
@@ -50,7 +42,7 @@ setFakeVARS(){
   }
   export -f kubectl
   # shellcheck disable=SC2030
-  setFakeVARS
+  
   run _copy_data_to_shared_drive cluster_namespace master_pod root_dir shared_mount data_dir
   assert_output --partial "cp root_dir/data_dir -n cluster_namespace master_pod:shared_mount/"
 }
@@ -61,7 +53,7 @@ setFakeVARS(){
   }
   export -f kubectl
   local _slave_pods_array=(slave1 slave2)
-  run _download_server_logs  "$_cluster_namespace" "/foo" "${_slave_pods_array[@]}"
+  run _download_server_logs  "$_cluster_namespace" "/foo" "test" "${_slave_pods_array[@]}"
   assert_output --partial "cp /slave2:/test/jmeter-server.log /foo/slave2-jmeter-server.log"
   assert_output --partial "cp /slave1:/test/jmeter-server.log /foo/slave1-jmeter-server.log"
 
