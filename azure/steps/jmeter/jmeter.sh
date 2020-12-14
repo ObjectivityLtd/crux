@@ -142,7 +142,7 @@ _download_test_results() {
   kubectl cp "$_cluster_namespace/$_master_pod:$_tmp/results.csv" "$_working_dir/../../../kubernetes/tmp/results.csv"
   kubectl cp "$_cluster_namespace/$_master_pod:/test/jmeter.log" "$_working_dir/../../../kubernetes/tmp/jmeter.log"
   kubectl cp "$_cluster_namespace/$_master_pod:/test/errors.xml" "$_working_dir/../../../kubernetes/tmp/errors.xml"
-  head -n10 "$working_dir/../../../kubernetes/tmp/results.csv"
+  head -n10 "$_working_dir/../../../kubernetes/tmp/results.csv"
 }
 
 jmeter() {
