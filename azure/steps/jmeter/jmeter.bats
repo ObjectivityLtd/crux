@@ -8,7 +8,6 @@ setup(){
   test_tmp_dir=$BATS_TMPDIR
 }
 setFakeVARS(){
-  tenant=tenant
   data_dir=data_dir
   root_dir=root_dir
   test_dir=test_dir
@@ -31,11 +30,11 @@ setFakeVARS(){
   }
   export -f kubectl head
   setFakeVARS
-  run _download_test_results cluster_namespace master_pod
+  run _download_test_results cluster_namespace master_pod local_report_dir
   assert_output --partial "cp cluster_namespace/master_pod:/report_dir local_report_dir/"
-  assert_output --partial "cp cluster_namespace/master_pod:/results.csv working_dir/../../../tmp/results.csv"
-  assert_output --partial "cluster_namespace/master_pod:/test/jmeter.log working_dir/../../../tmp/jmeter.log"
-  assert_output --partial "cluster_namespace/master_pod:/test/errors.xml working_dir/../../../tmp/errors.xml"
+  assert_output --partial "cp cluster_namespace/master_pod:/results.csv working_dir/../../../kubernetes/tmp/results.csv"
+  assert_output --partial "cluster_namespace/master_pod:/test/jmeter.log working_dir/../../../kubernetes/tmp/jmeter.log"
+  assert_output --partial "cluster_namespace/master_pod:/test/errors.xml working_dir/../../../kubernetes/tmp/errors.xml"
   unset head
 }
 
@@ -66,10 +65,10 @@ setFakeVARS(){
     echo "$@"
   }
   export -f kubectl
-  slave_pods_array=(slave1 slave2)
-  run _download_server_logs
-  assert_output --partial "cp /slave2:/test/jmeter-server.log /slave2-jmeter-server.log"
-  assert_output --partial "cp /slave1:/test/jmeter-server.log /slave1-jmeter-server.log"
+  local _slave_pods_array=(slave1 slave2)
+  run _download_server_logs  "$_cluster_namespace" "/foo" "${_slave_pods_array[@]}"
+  assert_output --partial "cp /slave2:/test/jmeter-server.log /foo/slave2-jmeter-server.log"
+  assert_output --partial "cp /slave1:/test/jmeter-server.log /foo/slave1-jmeter-server.log"
 
 }
 
@@ -79,7 +78,7 @@ setFakeVARS(){
   }
   export -f kubectl
   _get_slave_pods
-  [ "jmeter-slaves-6495546c95-fzdn5 jmeter-slaves-6495546c95-vcsjg" == "${slave_pods_array[*]}" ]
+  [ "jmeter-slaves-6495546c95-fzdn5 jmeter-slaves-6495546c95-vcsjg" == "${SLAVE_PODS_ARRAY[*]}" ]
 }
 
 @test "UT: _get_pods returns all pods list" {
@@ -110,14 +109,13 @@ setFakeVARS(){
   }
   export -f pwd
   _set_variables 1 2 3 4 args
-  [ -n "$tenant" ] # not empty
   [ -n "$jmx" ]
   [ -n "$data_dir" ]
   [ -n "$data_dir_relative" ]
   [ -n "$user_args" ]
   [ -n "$root_dir" ]
-  [ -n "$local_report_dir" ]
-  [ -n "$server_logs_dir" ]
+  [ -n "$LOCAL_REPORT_DIR" ]
+  [ -n "$SERVER_LOGS_DIR" ]
   [ -n "$report_dir" ]
   [ -n "$tmp" ]
   [ -n "$report_args" ]

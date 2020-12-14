@@ -1,19 +1,14 @@
 #!/usr/bin/env bash
-#Script created to launch Jmeter tests directly from the current terminal without accessing the jmeter master pod.
-#It requires that you supply the path to the jmx file
-#After execution, test script jmx file may be deleted from the pod itself but not locally.
 
-function _set_variables() {
+function _set_variables() { #public: sets shared variables for the script
   working_dir="$(pwd)"
-  #Get namesapce variable
-  tenant="$1"
   jmx="$2"
   data_dir="$3"
   data_dir_relative="$4"
   user_args="$5"
   root_dir=$working_dir/../../../
-  local_report_dir=$working_dir/../../../kubernetes/tmp/report
-  server_logs_dir=$working_dir/../../../kubernetes/tmp/server_logs
+  LOCAL_REPORT_DIR=$working_dir/../../../kubernetes/tmp/report
+  SERVER_LOGS_DIR=$working_dir/../../../kubernetes/tmp/server_logs
   report_dir=report
   test_dir=/test
   tmp=/tmp
@@ -22,23 +17,26 @@ function _set_variables() {
   shared_mount="/shared"
 }
 
-_prepare_env() {
+_prepare_env() { #public: prepares env for execution
   local _cluster_namespace=$1
+  local _local_report_dir=$2
+  local _server_logs_dir=$3
+
   #delete evicted pods first
   kubectl get pods -n "$_cluster_namespace" --field-selector 'status.phase==Failed' -o json | kubectl delete -f -
   MASTER_POD=$(kubectl get po -n "$_cluster_namespace" | grep Running | grep jmeter-master | awk '{print $1}')
   #create necessary dirs
-  mkdir -p "$local_report_dir" "$server_logs_dir"
+  mkdir -p "$_local_report_dir" "$_server_logs_dir"
 }
 
 _get_slave_pods() {
   local _cluster_namespace=$1
-  slave_pods=$(kubectl get po -n "$_cluster_namespace" --field-selector 'status.phase==Running' | grep jmeter-slave | awk '{print $1}' | xargs)
-  IFS=' ' read -r -a slave_pods_array <<<"$slave_pods"
+  local _slave_pods=$(kubectl get po -n "$_cluster_namespace" --field-selector 'status.phase==Running' | grep jmeter-slave | awk '{print $1}' | xargs)
+  IFS=' ' read -r -a SLAVE_PODS_ARRAY <<<"$_slave_pods"
 }
 _get_pods() {
   local _cluster_namespace=$1
-  pods=$(kubectl get po -n _cluster_namespace --field-selector 'status.phase==Running' | grep jmeter- | awk '{print $1}' | xargs)
+  pods=$(kubectl get po -n $_cluster_namespace --field-selector 'status.phase==Running' | grep jmeter- | awk '{print $1}' | xargs)
   IFS=' ' read -r -a pods_array <<<"$pods"
 }
 _clean_pods() {
@@ -57,10 +55,13 @@ _clean_pods() {
 #this should be sequential copy instead of shared drive because of IO
 _download_server_logs() {
   local _cluster_namespace=$1
+  local _server_logs_dir=$2
+  shift 2
+  local _slave_pods_array=("$@")
   echo "Archiving server logs"
-  for pod in "${slave_pods_array[@]}"; do
+  for pod in "${_slave_pods_array[@]}"; do
     echo "Getting jmeter-server.log on $pod"
-    kubectl cp "$tenant/$pod:/test/jmeter-server.log" "$server_logs_dir/$pod-jmeter-server.log"
+    kubectl cp "$_cluster_namespace/$pod:/test/jmeter-server.log" "$_server_logs_dir/$pod-jmeter-server.log"
   done
 }
 _list_pods_contents() {
@@ -109,7 +110,8 @@ _run_jmeter_test() {
 _download_test_results() {
   local _cluster_namespace=$1
   local _master_pod=$2
-  kubectl cp "$_cluster_namespace/$_master_pod:$tmp/$report_dir" "$local_report_dir/"
+  local _local_report_dir=$3
+  kubectl cp "$_cluster_namespace/$_master_pod:$tmp/$report_dir" "$_local_report_dir/"
   kubectl cp "$_cluster_namespace/$_master_pod:$tmp/results.csv" "$working_dir/../../../kubernetes/tmp/results.csv"
   kubectl cp "$_cluster_namespace/$_master_pod:/test/jmeter.log" "$working_dir/../../../kubernetes/tmp/jmeter.log"
   kubectl cp "$_cluster_namespace/$_master_pod:/test/errors.xml" "$working_dir/../../../kubernetes/tmp/errors.xml"
@@ -126,8 +128,8 @@ jmeter() {
   local _jmeter_data_dir_relative="$4"
   local _jmeter_args="$5"
 
-  _set_variables "$_cluster_namespace" "$_jmeter_scenario" "$_jmeter_data_dir" "$_jmeter_data_dir_relative" "$_jmeter_args"
-  _prepare_env "$_cluster_namespace" #sets MASTER_POD
+  _set_variables "$_jmeter_scenario" "$_jmeter_data_dir" "$_jmeter_data_dir_relative" "$_jmeter_args"
+  _prepare_env "$_cluster_namespace" "$LOCAL_REPORT_DIR" "$SERVER_LOGS_DIR " #sets MASTER_POD
   _get_pods "$_cluster_namespace" #sets pods
   _get_slave_pods "$_cluster_namespace" #sets slave_pods
 
@@ -138,8 +140,8 @@ jmeter() {
   _clean_master_pod "$_cluster_namespace" "$MASTER_POD"
   _list_pods_contents "$_cluster_namespace"
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD"
-  _download_test_results "$_cluster_namespace" "$MASTER_POD"
-  _download_server_logs "$_cluster_namespace"
+  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$LOCAL_REPORT_DIR"
+  _download_server_logs "$_cluster_namespace" "$SERVER_LOGS_DIR" "${SLAVE_PODS_ARRAY[@]}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
