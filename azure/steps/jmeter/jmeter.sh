@@ -128,7 +128,7 @@ _clean_master_pod() { #public: resets folders used in tests
   local _report_args=$4
   local _user_args=$5
   printf "\t\n Jmeter user args $user_args \n"
-  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- /bin/bash /load_test " $_test_name $_report_args $_user_args "
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- /bin/bash /load_test "$_test_name" " $_report_args $_user_args "
 }
 #copy artifacts from master jmeter
 _download_test_results() {
