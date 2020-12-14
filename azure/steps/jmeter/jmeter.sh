@@ -10,11 +10,11 @@ function _set_variables() { #public: sets shared variables for the script
   LOCAL_REPORT_DIR=$working_dir/../../../kubernetes/tmp/report
   LOCAL_SERVER_LOGS_DIR=$working_dir/../../../kubernetes/tmp/server_logs
   report_dir=report
-  test_dir=/test
+  TEST_DIR=/test
   tmp=/tmp
   report_args="-o $tmp/$report_dir -l $tmp/results.csv -e"
   test_name="$(basename "$root_dir/$jmx")"
-  shared_mount="/shared"
+  SHARED_MOUNT="/shared"
 }
 
 _prepare_env() { #public: prepares env for execution, sets MASTER_POD
@@ -40,19 +40,21 @@ _get_pods() { #public: sets SLAVE_PODS_ARRAY
   IFS=' ' read -r -a PODS_ARRAY <<<"$_pods"
 }
 
-_clean_pods() {
+_clean_pods() { #public: cleans folders before test
   local _cluster_namespace=$1
   local _master_pod=$2
-  shift 2
+  local _test_dir=$3
+  local _shared_mount=$4
+  shift 4
   local _pods_array=("$@")
   echo "Cleaning on $_master_pod"
-  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- bash -c "rm -Rf $shared_mount/*"
-  for pod in "${_pods_array[@]}"; do
-    echo "Cleaning on $pod"
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- bash -c "rm -Rf $_shared_mount/*"
+  for _pod in "${_pods_array[@]}"; do
+    echo "Cleaning on $_pod"
     #we only clean test data, jmeter-server.log needs to stay
-    kubectl exec -i -n "$_cluster_namespace" "$pod" -- bash -c "rm -Rf $test_dir/*.csv"
-    kubectl exec -i -n "$_cluster_namespace" "$pod" -- bash -c "rm -Rf $test_dir/*.py"
-    kubectl exec -i -n "$_cluster_namespace" "$pod" -- bash -c "rm -Rf $test_dir/*.jmx"
+    kubectl exec -i -n "$_cluster_namespace" "$_pod" -- bash -c "rm -Rf $_test_dir/*.csv"
+    kubectl exec -i -n "$_cluster_namespace" "$_pod" -- bash -c "rm -Rf $_test_dir/*.py"
+    kubectl exec -i -n "$_cluster_namespace" "$_pod" -- bash -c "rm -Rf $_test_dir/*.jmx"
   done
 }
 #this should be sequential copy instead of shared drive because of IO
@@ -139,7 +141,7 @@ jmeter() {
   _get_slave_pods "$_cluster_namespace" #sets SLAVE_PODS_ARRAY
 
   #verify all is set
-  _clean_pods "$_cluster_namespace" "$MASTER_POD" "${PODS_ARRAY[@]}"
+  _clean_pods "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}"
   _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD"
   _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD"
   _clean_master_pod "$_cluster_namespace" "$MASTER_POD"

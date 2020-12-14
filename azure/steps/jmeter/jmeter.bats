@@ -120,7 +120,7 @@ setFakeVARS(){
   [ -n "$tmp" ]
   [ -n "$report_args" ]
   [ -n "$test_name" ]
-  [ -n "$shared_mount" ]
+  [ -n "$SHARED_MOUNT" ]
 
   unset pwd
 }
@@ -131,10 +131,10 @@ setFakeVARS(){
   }
   export -f kubectl
   pods_array=(slave1)
-  run _clean_pods cluster_namespace master_pod "${pods_array[@]}"
-  assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf /*.csv"
-  assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf /*.py"
-  assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf /*.jmx"
+  run _clean_pods cluster_namespace master_pod test_dir shared_mount "${pods_array[@]}"
+  assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf test_dir/*.csv"
+  assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf test_dir/*.py"
+  assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf test_dir/*.jmx"
 }
 
 @test "UT: _clean_pods does not remove .log files" {
