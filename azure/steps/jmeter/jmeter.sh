@@ -4,7 +4,6 @@ function _set_variables() { #public: sets shared variables for the script
   WORKING_DIR="$(pwd)"
   JMX="$1"
   DATA_DIR="$2"
-  data_dir_relative="$3"
   USER_ARGS="$4"
   ROOT_DIR=$WORKING_DIR/../../../
   LOCAL_REPORT_DIR=$WORKING_DIR/../../../kubernetes/tmp/report
@@ -12,10 +11,11 @@ function _set_variables() { #public: sets shared variables for the script
   REPORT_DIR=report
   TEST_DIR=/test
   TMP=/tmp
-  REPORT_ARGS="-o $TMP/$REPORT_DIR -l $TMP/results.csv -e"
   TEST_NAME="$(basename "$ROOT_DIR/$JMX")"
   SHARED_MOUNT="/shared"
   ERROR_FILE="errors.xml"
+  RESULTS_FILE="results.csv"
+  REPORT_ARGS="-o $TMP/$REPORT_DIR -l $TMP/$RESULTS_FILE -e"
 }
 
 _prepare_env() { #public: prepares env for execution, sets MASTER_POD
@@ -115,7 +115,7 @@ _clean_master_pod() { #public: resets folders used in tests
   local _test_name=$3
   local _report_args=$4
   local _user_args=$5
-  printf "\t\n Jmeter user args %s \n" "$__user_args"
+  printf "\t\n Jmeter user args %s \n" "$_user_args"
   kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- /bin/bash /load_test "$_test_name" " $_report_args $_user_args "
 }
 #copy artifacts from master jmeter
@@ -126,11 +126,10 @@ _download_test_results() {
   local _report_dir=$4
   local _tmp=$5
   local _working_dir=$6
-  kubectl cp "$_cluster_namespace/$_master_pod:$_tmp/$_report_dir" "$_local_report_dir/"
+  kubectl cp "$_cluster_namespace/$_master_pod:$_tmp/$_report_dir" "$_working_dir/../../../kubernetes/tmp/report/"
   kubectl cp "$_cluster_namespace/$_master_pod:$_tmp/results.csv" "$_working_dir/../../../kubernetes/tmp/results.csv"
   kubectl cp "$_cluster_namespace/$_master_pod:/test/jmeter.log" "$_working_dir/../../../kubernetes/tmp/jmeter.log"
   kubectl cp "$_cluster_namespace/$_master_pod:/test/errors.xml" "$_working_dir/../../../kubernetes/tmp/errors.xml"
-  head -n10 "$_working_dir/../../../kubernetes/tmp/results.csv"
 }
 #this should be sequential copy instead of shared drive because of IO
 _download_server_logs() {
@@ -139,10 +138,10 @@ _download_server_logs() {
   local _test_dir=$3
   shift 3
   local _slave_pods_array=("$@")
-  echo "Archiving server logs"
+  local _server_log_file="jmeter-server.log"
   for _pod in "${_slave_pods_array[@]}"; do
-    echo "Getting jmeter-server.log on $_pod"
-    kubectl cp "$_cluster_namespace/$_pod:/$_test_dir/jmeter-server.log" "$_server_logs_dir/$_pod-jmeter-server.log"
+    echo "Downloading $_server_log_file from $_pod"
+    kubectl cp "$_cluster_namespace/$_pod:/$_test_dir/$_server_log_file" "$_server_logs_dir/$_pod-$_server_log_file"
   done
 }
 
@@ -153,11 +152,10 @@ jmeter() {
   local _cluster_namespace="$1"
   local _jmeter_scenario="$2"
   local _jmeter_data_dir="$3"
-  local _jmeter_data_dir_relative="$4"
-  local _jmeter_args="$5"
+  local _jmeter_args="$4"
 
    #set vars
-  _set_variables "$_jmeter_scenario" "$_jmeter_data_dir" "$_jmeter_data_dir_relative" "$_jmeter_args"
+  _set_variables "$_jmeter_scenario" "$_jmeter_data_dir" "$_jmeter_args"
   _prepare_env "$_cluster_namespace" "$LOCAL_REPORT_DIR" "$LOCAL_SERVER_LOGS_DIR " #sets MASTER_POD and created dirs
   _get_pods "$_cluster_namespace" #sets PODS_ARRAY
   _get_slave_pods "$_cluster_namespace" #sets SLAVE_PODS_ARRAY

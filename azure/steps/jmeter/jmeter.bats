@@ -98,7 +98,6 @@ setup(){
   _set_variables 1 2 3 4 args
   [ -n "$JMX" ]
   [ -n "$DATA_DIR" ]
-  [ -n "$data_dir_relative" ]
   [ -n "$USER_ARGS" ]
   [ -n "$ROOT_DIR" ]
   [ -n "$LOCAL_REPORT_DIR" ]
