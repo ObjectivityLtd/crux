@@ -2,10 +2,10 @@
 
 function _set_variables() { #public: sets shared variables for the script
   working_dir="$(pwd)"
-  jmx="$2"
-  data_dir="$3"
-  data_dir_relative="$4"
-  user_args="$5"
+  jmx="$1"
+  data_dir="$2"
+  data_dir_relative="$3"
+  user_args="$4"
   root_dir=$working_dir/../../../
   LOCAL_REPORT_DIR=$working_dir/../../../kubernetes/tmp/report
   LOCAL_SERVER_LOGS_DIR=$working_dir/../../../kubernetes/tmp/server_logs
@@ -44,7 +44,7 @@ _clean_pods() {
   local _cluster_namespace=$1
   local _master_pod=$2
   shift 2
-  local _pods_array=("${@}")
+  local _pods_array=("$@")
   echo "Cleaning on $_master_pod"
   kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- bash -c "rm -Rf $shared_mount/*"
   for pod in "${_pods_array[@]}"; do
@@ -70,7 +70,7 @@ _download_server_logs() {
 _list_pods_contents() {
   local _cluster_namespace=$1
   shift 1
-  local _pods_array=("${@}")
+  local _pods_array=("$@")
   for pod in "${_pods_array[@]}"; do
     echo "$test_dir on $pod"
     kubectl exec -i -n "$_cluster_namespace" $pod -- ls -1 "/$test_dir/" |awk '$0="  --"$0'
