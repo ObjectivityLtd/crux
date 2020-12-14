@@ -26,7 +26,7 @@ _prepare_env() {
   local _cluster_namespace=$1
   #delete evicted pods first
   kubectl get pods -n "$_cluster_namespace" --field-selector 'status.phase==Failed' -o json | kubectl delete -f -
-  _master_pod=$(kubectl get po -n "$_cluster_namespace" | grep Running | grep jmeter-master | awk '{print $1}')
+  MASTER_POD=$(kubectl get po -n "$_cluster_namespace" | grep Running | grep jmeter-master | awk '{print $1}')
   #create necessary dirs
   mkdir -p "$local_report_dir" "$server_logs_dir"
 }
@@ -125,17 +125,20 @@ jmeter() {
   local _jmeter_data_dir="$3"
   local _jmeter_data_dir_relative="$4"
   local _jmeter_args="$5"
+
   _set_variables "$_cluster_namespace" "$_jmeter_scenario" "$_jmeter_data_dir" "$_jmeter_data_dir_relative" "$_jmeter_args"
-  _prepare_env "$_cluster_namespace" #sets master_pod
+  _prepare_env "$_cluster_namespace" #sets MASTER_POD
   _get_pods "$_cluster_namespace" #sets pods
   _get_slave_pods "$_cluster_namespace" #sets slave_pods
-  _clean_pods "$_cluster_namespace" "$master_pod"
-  _copy_data_to_shared_drive "$_cluster_namespace" "$_master_pod"
-  _copy_jmx_to_master_pod "$_cluster_namespace" "$_master_pod"
-  _clean_master_pod "$_cluster_namespace" "$_master_pod"
+
+  #verify all is set
+  _clean_pods "$_cluster_namespace" "$MASTER_POD"
+  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD"
+  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD"
+  _clean_master_pod "$_cluster_namespace" "$MASTER_POD"
   _list_pods_contents "$_cluster_namespace"
-  _run_jmeter_test "$_cluster_namespace" "$_master_pod"
-  _download_test_results "$_cluster_namespace" "$_master_pod"
+  _run_jmeter_test "$_cluster_namespace" "$MASTER_POD"
+  _download_test_results "$_cluster_namespace" "$MASTER_POD"
   _download_server_logs "$_cluster_namespace"
 }
 
