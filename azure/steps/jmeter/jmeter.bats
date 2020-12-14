@@ -87,7 +87,7 @@ setFakeVARS(){
   }
   export -f kubectl
   _get_pods
-  [ "jmeter-master-84cdf76f56-fbgtx jmeter-slaves-6495546c95-fzdn5 jmeter-slaves-6495546c95-vcsjg" == "${pods_array[*]}" ]
+  [ "jmeter-master-84cdf76f56-fbgtx jmeter-slaves-6495546c95-fzdn5 jmeter-slaves-6495546c95-vcsjg" == "${PODS_ARRAY[*]}" ]
 }
 
 @test "UT: _prepare_env deletes evicted pods" {
@@ -115,7 +115,7 @@ setFakeVARS(){
   [ -n "$user_args" ]
   [ -n "$root_dir" ]
   [ -n "$LOCAL_REPORT_DIR" ]
-  [ -n "$SERVER_LOGS_DIR" ]
+  [ -n "$LOCAL_SERVER_LOGS_DIR" ]
   [ -n "$report_dir" ]
   [ -n "$tmp" ]
   [ -n "$report_args" ]
@@ -131,7 +131,7 @@ setFakeVARS(){
   }
   export -f kubectl
   pods_array=(slave1)
-  run _clean_pods cluster_namespace master_pod
+  run _clean_pods cluster_namespace master_pod "${pods_array[@]}"
   assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf /*.csv"
   assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf /*.py"
   assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf /*.jmx"

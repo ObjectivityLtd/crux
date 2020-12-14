@@ -8,7 +8,7 @@ function _set_variables() { #public: sets shared variables for the script
   user_args="$5"
   root_dir=$working_dir/../../../
   LOCAL_REPORT_DIR=$working_dir/../../../kubernetes/tmp/report
-  SERVER_LOGS_DIR=$working_dir/../../../kubernetes/tmp/server_logs
+  LOCAL_SERVER_LOGS_DIR=$working_dir/../../../kubernetes/tmp/server_logs
   report_dir=report
   test_dir=/test
   tmp=/tmp
@@ -36,15 +36,17 @@ _get_slave_pods() {
 }
 _get_pods() {
   local _cluster_namespace=$1
-  pods=$(kubectl get po -n $_cluster_namespace --field-selector 'status.phase==Running' | grep jmeter- | awk '{print $1}' | xargs)
-  IFS=' ' read -r -a pods_array <<<"$pods"
+  local _pods=$(kubectl get po -n $_cluster_namespace --field-selector 'status.phase==Running' | grep jmeter- | awk '{print $1}' | xargs)
+  IFS=' ' read -r -a PODS_ARRAY <<<"$_pods"
 }
 _clean_pods() {
   local _cluster_namespace=$1
   local _master_pod=$2
+  shift 2
+  local _pods_array=("${@}")
   echo "Cleaning on $_master_pod"
   kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- bash -c "rm -Rf $shared_mount/*"
-  for pod in "${pods_array[@]}"; do
+  for pod in "${_pods_array[@]}"; do
     echo "Cleaning on $pod"
     #we only clean test data, jmeter-server.log needs to stay
     kubectl exec -i -n "$_cluster_namespace" "$pod" -- bash -c "rm -Rf $test_dir/*.csv"
@@ -66,7 +68,9 @@ _download_server_logs() {
 }
 _list_pods_contents() {
   local _cluster_namespace=$1
-  for pod in "${pods_array[@]}"; do
+  shift 1
+  local _pods_array=("${@}")
+  for pod in "${_pods_array[@]}"; do
     echo "$test_dir on $pod"
     kubectl exec -i -n "$_cluster_namespace" $pod -- ls -1 "/$test_dir/" |awk '$0="  --"$0'
 
@@ -129,19 +133,19 @@ jmeter() {
   local _jmeter_args="$5"
 
   _set_variables "$_jmeter_scenario" "$_jmeter_data_dir" "$_jmeter_data_dir_relative" "$_jmeter_args"
-  _prepare_env "$_cluster_namespace" "$LOCAL_REPORT_DIR" "$SERVER_LOGS_DIR " #sets MASTER_POD
-  _get_pods "$_cluster_namespace" #sets pods
-  _get_slave_pods "$_cluster_namespace" #sets slave_pods
+  _prepare_env "$_cluster_namespace" "$LOCAL_REPORT_DIR" "$LOCAL_SERVER_LOGS_DIR " #sets MASTER_POD and created dirs
+  _get_pods "$_cluster_namespace" #sets PODS_ARRAY
+  _get_slave_pods "$_cluster_namespace" #sets SLAVE_PODS_ARRAY
 
   #verify all is set
-  _clean_pods "$_cluster_namespace" "$MASTER_POD"
+  _clean_pods "$_cluster_namespace" "$MASTER_POD" "${PODS_ARRAY[@]}"
   _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD"
   _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD"
   _clean_master_pod "$_cluster_namespace" "$MASTER_POD"
-  _list_pods_contents "$_cluster_namespace"
+  _list_pods_contents "$_cluster_namespace" "${PODS_ARRAY[@]}"
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD"
   _download_test_results "$_cluster_namespace" "$MASTER_POD" "$LOCAL_REPORT_DIR"
-  _download_server_logs "$_cluster_namespace" "$SERVER_LOGS_DIR" "${SLAVE_PODS_ARRAY[@]}"
+  _download_server_logs "$_cluster_namespace" "$LOCAL_SERVER_LOGS_DIR" "${SLAVE_PODS_ARRAY[@]}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
