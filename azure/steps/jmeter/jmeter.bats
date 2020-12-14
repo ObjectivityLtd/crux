@@ -8,8 +8,6 @@ setup(){
   test_tmp_dir=$BATS_TMPDIR
 }
 setFakeVARS(){
-  test_dir=test_dir
-  test_name=test_name
   report_args=report_args
   user_args=user_args
   master_pod=master_pod
@@ -42,7 +40,7 @@ setFakeVARS(){
   }
   export -f kubectl
   setFakeVARS
-  run _run_jmeter_test cluster_namespace master_pod
+  run _run_jmeter_test cluster_namespace master_pod test_name
   assert_output --partial "exec -i -n cluster_namespace master_pod -- /bin/bash /load_test test_name  report_args user_args"
 }
 
