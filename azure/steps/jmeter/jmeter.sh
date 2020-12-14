@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
 function _set_variables() { #public: sets shared variables for the script
-  working_dir="$(pwd)"
+  WORKING_DIR="$(pwd)"
   JMX="$1"
   DATA_DIR="$2"
   data_dir_relative="$3"
   USER_ARGS="$4"
-  ROOT_DIR=$working_dir/../../../
-  LOCAL_REPORT_DIR=$working_dir/../../../kubernetes/tmp/report
-  LOCAL_SERVER_LOGS_DIR=$working_dir/../../../kubernetes/tmp/server_logs
+  ROOT_DIR=$WORKING_DIR/../../../
+  LOCAL_REPORT_DIR=$WORKING_DIR/../../../kubernetes/tmp/report
+  LOCAL_SERVER_LOGS_DIR=$WORKING_DIR/../../../kubernetes/tmp/server_logs
   REPORT_DIR=report
   TEST_DIR=/test
   TMP=/tmp
@@ -135,10 +135,13 @@ _download_test_results() {
   local _cluster_namespace=$1
   local _master_pod=$2
   local _local_report_dir=$3
-  kubectl cp "$_cluster_namespace/$_master_pod:$tmp/$report_dir" "$_local_report_dir/"
-  kubectl cp "$_cluster_namespace/$_master_pod:$tmp/results.csv" "$working_dir/../../../kubernetes/tmp/results.csv"
-  kubectl cp "$_cluster_namespace/$_master_pod:/test/jmeter.log" "$working_dir/../../../kubernetes/tmp/jmeter.log"
-  kubectl cp "$_cluster_namespace/$_master_pod:/test/errors.xml" "$working_dir/../../../kubernetes/tmp/errors.xml"
+  local _report_dir=$4
+  local _tmp=$5
+  local _working_dir=$6
+  kubectl cp "$_cluster_namespace/$_master_pod:$_tmp/$_report_dir" "$_local_report_dir/"
+  kubectl cp "$_cluster_namespace/$_master_pod:$_tmp/results.csv" "$_working_dir/../../../kubernetes/tmp/results.csv"
+  kubectl cp "$_cluster_namespace/$_master_pod:/test/jmeter.log" "$_working_dir/../../../kubernetes/tmp/jmeter.log"
+  kubectl cp "$_cluster_namespace/$_master_pod:/test/errors.xml" "$_working_dir/../../../kubernetes/tmp/errors.xml"
   head -n10 "$working_dir/../../../kubernetes/tmp/results.csv"
 }
 
@@ -165,7 +168,7 @@ jmeter() {
   _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$TMP" "$REPORT_DIR" "$ERROR_FILE" #OK
   _list_pods_contents "$_cluster_namespace" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}" #OK
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME" "$REPORT_ARGS" "$USER_ARGS"
-  #_download_test_results "$_cluster_namespace" "$MASTER_POD" "$LOCAL_REPORT_DIR"
+  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$LOCAL_REPORT_DIR" "$REPORT_DIR" "$TMP" "$WORKING_DIR"
   #_download_server_logs "$_cluster_namespace" "$LOCAL_SERVER_LOGS_DIR" "${SLAVE_PODS_ARRAY[@]}"
 }
 
