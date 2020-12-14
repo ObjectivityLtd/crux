@@ -55,7 +55,8 @@ _clean_pods() {
   done
 }
 #this should be sequential copy instead of shared drive because of IO
-getServerLogs() {
+_download_server_logs() {
+  local _cluster_namespace=$1
   echo "Archiving server logs"
   for pod in "${slave_pods_array[@]}"; do
     echo "Getting jmeter-server.log on $pod"
@@ -135,7 +136,7 @@ jmeter() {
   _list_pods_contents "$_cluster_namespace"
   _run_jmeter_test "$_cluster_namespace" "$_master_pod"
   _download_test_results "$_cluster_namespace" "$_master_pod"
-  getServerLogs
+  _download_server_logs "$_cluster_namespace"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

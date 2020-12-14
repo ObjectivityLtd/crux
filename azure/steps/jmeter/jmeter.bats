@@ -33,9 +33,9 @@ setFakeVARS(){
   setFakeVARS
   run _download_test_results cluster_namespace master_pod
   assert_output --partial "cp cluster_namespace/master_pod:/report_dir local_report_dir/"
-  assert_output --partial "cp cluster_namespace/master_pod:/results.csv working_dir/../tmp/results.csv"
-  assert_output --partial "cluster_namespace/master_pod:/test/jmeter.log working_dir/../tmp/jmeter.log"
-  assert_output --partial "cluster_namespace/master_pod:/test/errors.xml working_dir/../tmp/errors.xml"
+  assert_output --partial "cp cluster_namespace/master_pod:/results.csv working_dir/../../../tmp/results.csv"
+  assert_output --partial "cluster_namespace/master_pod:/test/jmeter.log working_dir/../../../tmp/jmeter.log"
+  assert_output --partial "cluster_namespace/master_pod:/test/errors.xml working_dir/../../../tmp/errors.xml"
   unset head
 }
 
@@ -61,13 +61,13 @@ setFakeVARS(){
   assert_output --partial "cp root_dir/data_dir -n cluster_namespace master_pod:shared_mount/"
 }
 
-@test "UT: getServerLogs archives all logs from slaves" {
+@test "UT: _download_server_logs archives all logs from slaves" {
   kubectl(){
     echo "$@"
   }
   export -f kubectl
   slave_pods_array=(slave1 slave2)
-  run getServerLogs
+  run _download_server_logs
   assert_output --partial "cp /slave2:/test/jmeter-server.log /slave2-jmeter-server.log"
   assert_output --partial "cp /slave1:/test/jmeter-server.log /slave1-jmeter-server.log"
 
@@ -161,8 +161,8 @@ setFakeVARS(){
   _list_pods_contents(){ echo "__mock"; }
   _run_jmeter_test(){ echo "__mock"; }
   _download_test_results(){ echo "__mock"; }
-  getServerLogs(){ echo "__mock";}
-  export -f _set_variables _prepare_env _get_pods _get_slave_pods _clean_pods _copy_data_to_shared_drive _copy_jmx_to_master_pod _clean_master_pod _list_pods_contents _run_jmeter_test _download_test_results getServerLogs
+  _download_server_logs(){ echo "__mock";}
+  export -f _set_variables _prepare_env _get_pods _get_slave_pods _clean_pods _copy_data_to_shared_drive _copy_jmx_to_master_pod _clean_master_pod _list_pods_contents _run_jmeter_test _download_test_results _download_server_logs
   run jmeter
   CALL_NUMBER=12
   [ "$(echo "$output" | grep "__mock" | wc -l)" -eq $CALL_NUMBER ]
