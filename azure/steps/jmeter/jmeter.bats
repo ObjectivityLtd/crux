@@ -8,8 +8,6 @@ setup(){
   test_tmp_dir=$BATS_TMPDIR
 }
 setFakeVARS(){
-  data_dir=data_dir
-  root_dir=root_dir
   test_dir=test_dir
   test_name=test_name
   report_args=report_args
@@ -18,7 +16,6 @@ setFakeVARS(){
   report_dir=report_dir
   local_report_dir=local_report_dir
   working_dir=working_dir
-  shared_mount=shared_mount
 }
 
 @test "UT: _download_test_results copies report, results.csv, errors.xml and jmeter.log from master pod to local drive" {
@@ -56,7 +53,7 @@ setFakeVARS(){
   export -f kubectl
   # shellcheck disable=SC2030
   setFakeVARS
-  run _copy_data_to_shared_drive cluster_namespace master_pod
+  run _copy_data_to_shared_drive cluster_namespace master_pod root_dir shared_mount data_dir
   assert_output --partial "cp root_dir/data_dir -n cluster_namespace master_pod:shared_mount/"
 }
 
@@ -110,10 +107,10 @@ setFakeVARS(){
   export -f pwd
   _set_variables 1 2 3 4 args
   [ -n "$jmx" ]
-  [ -n "$data_dir" ]
+  [ -n "$DATA_DIR" ]
   [ -n "$data_dir_relative" ]
   [ -n "$user_args" ]
-  [ -n "$root_dir" ]
+  [ -n "$ROOT_DIR" ]
   [ -n "$LOCAL_REPORT_DIR" ]
   [ -n "$LOCAL_SERVER_LOGS_DIR" ]
   [ -n "$report_dir" ]

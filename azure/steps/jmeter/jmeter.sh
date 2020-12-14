@@ -3,17 +3,17 @@
 function _set_variables() { #public: sets shared variables for the script
   working_dir="$(pwd)"
   jmx="$1"
-  data_dir="$2"
+  DATA_DIR="$2"
   data_dir_relative="$3"
   user_args="$4"
-  root_dir=$working_dir/../../../
+  ROOT_DIR=$working_dir/../../../
   LOCAL_REPORT_DIR=$working_dir/../../../kubernetes/tmp/report
   LOCAL_SERVER_LOGS_DIR=$working_dir/../../../kubernetes/tmp/server_logs
   report_dir=report
   TEST_DIR=/test
   tmp=/tmp
   report_args="-o $tmp/$report_dir -l $tmp/results.csv -e"
-  test_name="$(basename "$root_dir/$jmx")"
+  test_name="$(basename "$ROOT_DIR/$jmx")"
   SHARED_MOUNT="/shared"
 }
 
@@ -86,17 +86,22 @@ _list_pods_contents() {
 _copy_data_to_shared_drive() {
     local _cluster_namespace=$1
     local _master_pod=$2
-    local _folder_basename=$(echo "${data_dir##*/}")
+    local _root_dir=$3
+    local _shared_mount=$4
+    local _data_dir=$5
+    local _folder_base
+    name=$(echo "${_data_dir##*/}")
     echo "Copying contents of repository $_folder_basename directory to pod : $_master_pod"
-    kubectl cp "$root_dir/$data_dir" -n "$_cluster_namespace" "$_master_pod:$shared_mount/"
-    echo "Unpacking data on pod : $_master_pod to $shared_mount folder"
-    kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- bash -c "cp -r $shared_mount/$_folder_basename/* $shared_mount/" #unpack to /test
+    kubectl cp "$_root_dir/$_data_dir" -n "$_cluster_namespace" "$_master_pod:$_shared_mount/"
+    echo "Unpacking data on pod : $_master_pod to $_shared_mount folder"
+    kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- bash -c "cp -r $_shared_mount/$_folder_basename/* $_shared_mount/" #unpack to /test
 }
 #jmx files should land on /test at master pod
 _copy_jmx_to_master_pod() {
   local _cluster_namespace=$1
   local _master_pod=$2
-  kubectl cp "$root_dir/$jmx" -n "$_cluster_namespace" "$_master_pod:/$test_dir/$test_name"
+  local _root_dir=$3
+  kubectl cp "$_root_dir/$jmx" -n "$_cluster_namespace" "$_master_pod:/$test_dir/$test_name"
 }
 #clean previous run thins if necessary
 _clean_master_pod() {
@@ -135,15 +140,16 @@ jmeter() {
   local _jmeter_data_dir_relative="$4"
   local _jmeter_args="$5"
 
+   #set vars
   _set_variables "$_jmeter_scenario" "$_jmeter_data_dir" "$_jmeter_data_dir_relative" "$_jmeter_args"
   _prepare_env "$_cluster_namespace" "$LOCAL_REPORT_DIR" "$LOCAL_SERVER_LOGS_DIR " #sets MASTER_POD and created dirs
   _get_pods "$_cluster_namespace" #sets PODS_ARRAY
   _get_slave_pods "$_cluster_namespace" #sets SLAVE_PODS_ARRAY
 
-  #verify all is set
-  _clean_pods "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}"
-  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD"
-  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD"
+  #test flow
+  _clean_pods "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}" #OK
+  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$SHARED_MOUNT" "$DATA_DIR"
+  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR"
   _clean_master_pod "$_cluster_namespace" "$MASTER_POD"
   _list_pods_contents "$_cluster_namespace" "${PODS_ARRAY[@]}"
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD"
