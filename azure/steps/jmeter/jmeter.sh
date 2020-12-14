@@ -164,8 +164,8 @@ jmeter() {
   _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$TMP" "$REPORT_DIR" "$ERROR_FILE" #OK
   _list_pods_contents "$_cluster_namespace" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}"
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME"
-  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$LOCAL_REPORT_DIR"
-  _download_server_logs "$_cluster_namespace" "$LOCAL_SERVER_LOGS_DIR" "${SLAVE_PODS_ARRAY[@]}"
+  #_download_test_results "$_cluster_namespace" "$MASTER_POD" "$LOCAL_REPORT_DIR"
+  #_download_server_logs "$_cluster_namespace" "$LOCAL_SERVER_LOGS_DIR" "${SLAVE_PODS_ARRAY[@]}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
