@@ -106,7 +106,7 @@ setFakeVARS(){
   }
   export -f pwd
   _set_variables 1 2 3 4 args
-  [ -n "$jmx" ]
+  [ -n "$JMX" ]
   [ -n "$DATA_DIR" ]
   [ -n "$data_dir_relative" ]
   [ -n "$user_args" ]
@@ -116,7 +116,7 @@ setFakeVARS(){
   [ -n "$report_dir" ]
   [ -n "$tmp" ]
   [ -n "$report_args" ]
-  [ -n "$test_name" ]
+  [ -n "$TEST_NAME" ]
   [ -n "$SHARED_MOUNT" ]
 
   unset pwd

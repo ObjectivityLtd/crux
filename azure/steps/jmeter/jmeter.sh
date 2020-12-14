@@ -2,7 +2,7 @@
 
 function _set_variables() { #public: sets shared variables for the script
   working_dir="$(pwd)"
-  jmx="$1"
+  JMX="$1"
   DATA_DIR="$2"
   data_dir_relative="$3"
   user_args="$4"
@@ -13,7 +13,7 @@ function _set_variables() { #public: sets shared variables for the script
   TEST_DIR=/test
   tmp=/tmp
   report_args="-o $tmp/$report_dir -l $tmp/results.csv -e"
-  test_name="$(basename "$ROOT_DIR/$jmx")"
+  TEST_NAME="$(basename "$ROOT_DIR/$JMX")"
   SHARED_MOUNT="/shared"
 }
 
@@ -71,19 +71,19 @@ _download_server_logs() {
 }
 _list_pods_contents() {
   local _cluster_namespace=$1
-  shift 1
+  local _test_dir=$2
+  shift 2
   local _pods_array=("$@")
   for pod in "${_pods_array[@]}"; do
-    echo "$test_dir on $pod"
-    kubectl exec -i -n "$_cluster_namespace" $pod -- ls -1 "/$test_dir/" |awk '$0="  --"$0'
+    echo "$_test_dir on $pod"
+    kubectl exec -i -n "$_cluster_namespace" $pod -- ls -1 "/$_test_dir/" |awk '$0="  --"$0'
 
     echo "$shared_mount on $pod"
     kubectl exec -i -n "$_cluster_namespace" $pod -- ls -1 "/$shared_mount/" |awk '$0="  --"$0'
   done
 }
 
-#sts and csv data should be copied to /shared which is a pvc mount
-_copy_data_to_shared_drive() {
+_copy_data_to_shared_drive() { #public: all test data are copied to /shared which is a pvc mount, STS reads from there too
     local _cluster_namespace=$1
     local _master_pod=$2
     local _root_dir=$3
@@ -100,22 +100,28 @@ _copy_jmx_to_master_pod() {
   local _cluster_namespace=$1
   local _master_pod=$2
   local _root_dir=$3
-  kubectl cp "$_root_dir/$jmx" -n "$_cluster_namespace" "$_master_pod:/$test_dir/$test_name"
+  local _jmx=$4
+  local _test_dir=$5
+  local _test_name=$6
+
+  kubectl cp "$_root_dir/$_jmx" -n "$_cluster_namespace" "$_master_pod:/$_test_dir/$_test_name"
 }
 #clean previous run thins if necessary
 _clean_master_pod() {
   local _cluster_namespace=$1
   local _master_pod=$2
+  local _test_dir=$3
   kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- rm -Rf "$tmp"
   kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- mkdir -p "$tmp/$report_dir"
-  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- touch "$test_dir/errors.xml"
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- touch "$_test_dir/errors.xml"
 }
 #runs actual tests
 _run_jmeter_test() {
   local _cluster_namespace=$1
   local _master_pod=$2
+  local _test_name=$3
   printf "\t\n Jmeter user args $user_args \n"
-  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- /bin/bash /load_test $test_name " $report_args $user_args "
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- /bin/bash /load_test $_test_name " $report_args $user_args "
 }
 #copy artifacts from master jmeter
 _download_test_results() {
@@ -147,11 +153,11 @@ jmeter() {
 
   #test flow
   _clean_pods "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}" #OK
-  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$SHARED_MOUNT" "$DATA_DIR"
-  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR"
-  _clean_master_pod "$_cluster_namespace" "$MASTER_POD"
-  _list_pods_contents "$_cluster_namespace" "${PODS_ARRAY[@]}"
-  _run_jmeter_test "$_cluster_namespace" "$MASTER_POD"
+  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$SHARED_MOUNT" "$DATA_DIR"#OK
+  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$JMX" "$TEST_DIR" "$TEST_NAME"
+  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR"
+  _list_pods_contents "$_cluster_namespace" "$TEST_DIR" "${PODS_ARRAY[@]}"
+  _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME"
   _download_test_results "$_cluster_namespace" "$MASTER_POD" "$LOCAL_REPORT_DIR"
   _download_server_logs "$_cluster_namespace" "$LOCAL_SERVER_LOGS_DIR" "${SLAVE_PODS_ARRAY[@]}"
 }
