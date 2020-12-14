@@ -65,22 +65,23 @@ _download_server_logs() {
   shift 2
   local _slave_pods_array=("$@")
   echo "Archiving server logs"
-  for pod in "${_slave_pods_array[@]}"; do
-    echo "Getting jmeter-server.log on $pod"
-    kubectl cp "$_cluster_namespace/$pod:/test/jmeter-server.log" "$_server_logs_dir/$pod-jmeter-server.log"
+  for _pod in "${_slave_pods_array[@]}"; do
+    echo "Getting jmeter-server.log on $_pod"
+    kubectl cp "$_cluster_namespace/$_pod:/test/jmeter-server.log" "$_server_logs_dir/$_pod-jmeter-server.log"
   done
 }
 _list_pods_contents() {
   local _cluster_namespace=$1
   local _test_dir=$2
-  shift 2
+  local _shared_mount=$3
+  shift 3
   local _pods_array=("$@")
-  for pod in "${_pods_array[@]}"; do
-    echo "$_test_dir on $pod"
-    kubectl exec -i -n "$_cluster_namespace" $pod -- ls -1 "/$_test_dir/" |awk '$0="  --"$0'
+  for _pod in "${_pods_array[@]}"; do
+    echo "$_test_dir on $_pod"
+    kubectl exec -i -n "$_cluster_namespace" "$_pod" -- ls -1 "/$_test_dir/" |awk '$0="  --"$0'
 
-    echo "$shared_mount on $pod"
-    kubectl exec -i -n "$_cluster_namespace" $pod -- ls -1 "/$shared_mount/" |awk '$0="  --"$0'
+    echo "$_shared_mount on $pod"
+    kubectl exec -i -n "$_cluster_namespace" "$_pod" -- ls -1 "/$_shared_mount/" |awk '$0="  --"$0'
   done
 }
 
@@ -120,8 +121,8 @@ _clean_master_pod() { #public: resets folders used in tests
   kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- mkdir -p "$_tmp/$_report_dir"
   kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- touch "$_test_dir/$_error_file"
 }
-#runs actual tests
-_run_jmeter_test() {
+
+ _run_jmeter_test() { #public: runs actual test from within master pod of a deployment
   local _cluster_namespace=$1
   local _master_pod=$2
   local _test_name=$3
@@ -160,8 +161,8 @@ jmeter() {
   _clean_pods "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}" #OK
   _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$SHARED_MOUNT" "$DATA_DIR" #OK
   _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$JMX" "$TEST_DIR" "$TEST_NAME" #OK
-  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$TMP" "$REPORT_DIR" "$ERROR_FILE"
-  _list_pods_contents "$_cluster_namespace" "$TEST_DIR" "${PODS_ARRAY[@]}"
+  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$TMP" "$REPORT_DIR" "$ERROR_FILE" #OK
+  _list_pods_contents "$_cluster_namespace" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}"
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME"
   _download_test_results "$_cluster_namespace" "$MASTER_POD" "$LOCAL_REPORT_DIR"
   _download_server_logs "$_cluster_namespace" "$LOCAL_SERVER_LOGS_DIR" "${SLAVE_PODS_ARRAY[@]}"
