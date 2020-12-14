@@ -9,12 +9,13 @@ function _set_variables() { #public: sets shared variables for the script
   ROOT_DIR=$working_dir/../../../
   LOCAL_REPORT_DIR=$working_dir/../../../kubernetes/tmp/report
   LOCAL_SERVER_LOGS_DIR=$working_dir/../../../kubernetes/tmp/server_logs
-  report_dir=report
+  REPORT_DIR=report
   TEST_DIR=/test
-  tmp=/tmp
-  report_args="-o $tmp/$report_dir -l $tmp/results.csv -e"
+  TMP=/tmp
+  report_args="-o $TMP/$REPORT_DIR -l $tmp/results.csv -e"
   TEST_NAME="$(basename "$ROOT_DIR/$JMX")"
   SHARED_MOUNT="/shared"
+  ERROR_FILE="errors.xml"
 }
 
 _prepare_env() { #public: prepares env for execution, sets MASTER_POD
@@ -95,8 +96,8 @@ _copy_data_to_shared_drive() { #public: all test data are copied to /shared whic
     echo "Unpacking data on pod : $_master_pod to $_shared_mount folder"
     kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- bash -c "cp -r $_shared_mount/$_folder_basename/* $_shared_mount/" #unpack to /test
 }
-#jmx files should land on /test at master pod
-_copy_jmx_to_master_pod() {
+
+_copy_jmx_to_master_pod() { #public: copies .jmx file to test folder /test at master pod
   local _cluster_namespace=$1
   local _master_pod=$2
   local _root_dir=$3
@@ -106,14 +107,18 @@ _copy_jmx_to_master_pod() {
 
   kubectl cp "$_root_dir/$_jmx" -n "$_cluster_namespace" "$_master_pod:/$_test_dir/$_test_name"
 }
-#clean previous run thins if necessary
-_clean_master_pod() {
+
+_clean_master_pod() { #public: resets folders used in tests
   local _cluster_namespace=$1
   local _master_pod=$2
   local _test_dir=$3
-  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- rm -Rf "$tmp"
-  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- mkdir -p "$tmp/$report_dir"
-  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- touch "$_test_dir/errors.xml"
+  local _tmp=$4
+  local _report_dir=$5
+  local _error_file=$6
+
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- rm -Rf "$_tmp"
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- mkdir -p "$tmp/$_report_dir"
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- touch "$_test_dir/$_error_file"
 }
 #runs actual tests
 _run_jmeter_test() {
@@ -154,8 +159,8 @@ jmeter() {
   #test flow
   _clean_pods "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}" #OK
   _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$SHARED_MOUNT" "$DATA_DIR"#OK
-  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$JMX" "$TEST_DIR" "$TEST_NAME"
-  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR"
+  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$JMX" "$TEST_DIR" "$TEST_NAME" #OK
+  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$TMP" "$REPORT_DIR" "$ERROR_FILE"
   _list_pods_contents "$_cluster_namespace" "$TEST_DIR" "${PODS_ARRAY[@]}"
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME"
   _download_test_results "$_cluster_namespace" "$MASTER_POD" "$LOCAL_REPORT_DIR"
