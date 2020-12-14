@@ -3,7 +3,7 @@
 #It requires that you supply the path to the jmx file
 #After execution, test script jmx file may be deleted from the pod itself but not locally.
 
-function setVARS() {
+function _set_variables() {
   working_dir="$(pwd)"
   #Get namesapce variable
   tenant="$1"
@@ -11,9 +11,9 @@ function setVARS() {
   data_dir="$3"
   data_dir_relative="$4"
   user_args="$5"
-  root_dir=$working_dir/../../
-  local_report_dir=$working_dir/../tmp/report
-  server_logs_dir=$working_dir/../tmp/server_logs
+  root_dir=$working_dir/../../../
+  local_report_dir=$working_dir/../../tmp/report
+  server_logs_dir=$working_dir/../../tmp/server_logs
   report_dir=report
   test_dir=/test
   tmp=/tmp
@@ -22,18 +22,22 @@ function setVARS() {
   shared_mount="/shared"
 }
 
-prepareEnv() {
+_prepare_env() {
+  local _cluster_namespace=$1
   #delete evicted pods first
-  kubectl get pods -n $tenant --field-selector 'status.phase==Failed' -o json | kubectl delete -f -
-  master_pod=$(kubectl get po -n $tenant | grep Running | grep jmeter-master | awk '{print $1}')
+  kubectl get pods -n "$_cluster_namespace" --field-selector 'status.phase==Failed' -o json | kubectl delete -f -
+  master_pod=$(kubectl get po -n "$_cluster_namespace" | grep Running | grep jmeter-master | awk '{print $1}')
   #create necessary dirs
   mkdir -p "$local_report_dir" "$server_logs_dir"
 }
-getSlavePods() {
-  slave_pods=$(kubectl get po -n $tenant --field-selector 'status.phase==Running' | grep jmeter-slave | awk '{print $1}' | xargs)
+
+_get_slave_pods() {
+  local _cluster_namespace=$1
+  slave_pods=$(kubectl get po -n "$_cluster_namespace" --field-selector 'status.phase==Running' | grep jmeter-slave | awk '{print $1}' | xargs)
   IFS=' ' read -r -a slave_pods_array <<<"$slave_pods"
 }
-getPods() {
+_get_pods() {
+  local _cluster_namespace=$1
   pods=$(kubectl get po -n $tenant --field-selector 'status.phase==Running' | grep jmeter- | awk '{print $1}' | xargs)
   IFS=' ' read -r -a pods_array <<<"$pods"
 }
@@ -98,14 +102,19 @@ copyTestResultsToLocal() {
   head -n10 "$working_dir/../tmp/results.csv"
 }
 
-jmeter () {
+jmeter() {
   #server logs need to be copied back instead of writing to a shared drive because of IO
   #data for sts should be copied to /test (not shared)
   #data for all e.g. CSV should be copied to /shared
-  setVARS "$1" "$2" "$3" "$4" "$5"
-  prepareEnv
-  getPods
-  getSlavePods
+  local _cluster_namespace="$1"
+  local _jmeter_scenario="$2"
+  local _jmeter_data_dir="$3"
+  local _jmeter_data_dir_relative="$4"
+  local _jmeter_args="$5"
+  _set_variables "$_cluster_namespace" "$_jmeter_scenario" "$_jmeter_data_dir" "$_jmeter_data_dir_relative" "$_jmeter_args"
+  _prepare_env "$_cluster_namespace"
+  _get_pods "$_cluster_namespace"
+  _get_slave_pods "$_cluster_namespace"
   cleanPods
   copyDataToPodsShared
   copyTestFilesToMasterPod

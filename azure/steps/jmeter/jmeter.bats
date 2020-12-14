@@ -73,25 +73,25 @@ setFakeVARS(){
 
 }
 
-@test "UT: getSlavePods returns slaves list" {
+@test "UT: _get_slave_pods returns slaves list" {
   kubectl(){
     cat test_data/kubectl_get_pods.txt
   }
   export -f kubectl
-  getSlavePods
+  _get_slave_pods
   [ "jmeter-slaves-6495546c95-fzdn5 jmeter-slaves-6495546c95-vcsjg" == "${slave_pods_array[*]}" ]
 }
 
-@test "UT: getPods returns all pods list" {
+@test "UT: _get_pods returns all pods list" {
   kubectl(){
     cat test_data/kubectl_get_pods.txt
   }
   export -f kubectl
-  getPods
+  _get_pods
   [ "jmeter-master-84cdf76f56-fbgtx jmeter-slaves-6495546c95-fzdn5 jmeter-slaves-6495546c95-vcsjg" == "${pods_array[*]}" ]
 }
 
-@test "UT: prepareEnv deletes evicted pods" {
+@test "UT: _prepare_env deletes evicted pods" {
   kubectl(){
     echo "$@"
   }
@@ -99,17 +99,17 @@ setFakeVARS(){
     :
   }
   export -f kubectl mkdir
-  run prepareEnv
+  run _prepare_env
   assert_output "delete -f -"
   unset mkdir
 }
 
-@test "UT: setVARS sets all variables" {
+@test "UT: _set_variables sets all variables" {
   pwd(){
     echo "$test_tmp_dir"
   }
   export -f pwd
-  setVARS 1 2 3 4 args
+  _set_variables 1 2 3 4 args
   [ -n "$tenant" ] # not empty
   [ -n "$jmx" ]
   [ -n "$data_dir" ]
@@ -150,10 +150,10 @@ setFakeVARS(){
 }
 
 @test "UT: jmeter calls all composing functions" {
-  setVARS(){ echo "__mock"; }
-  prepareEnv() { echo "__mock"; }
-  getPods() { echo "__mock"; }
-  getSlavePods() { echo "__mock"; }
+  _set_variables(){ echo "__mock"; }
+  _prepare_env() { echo "__mock"; }
+  _get_pods() { echo "__mock"; }
+  _get_slave_pods() { echo "__mock"; }
   cleanPods(){ echo "__mock"; }
   copyDataToPodsShared(){ echo "__mock"; }
   copyTestFilesToMasterPod(){ echo "__mock"; }
@@ -162,7 +162,7 @@ setFakeVARS(){
   runTest(){ echo "__mock"; }
   copyTestResultsToLocal(){ echo "__mock"; }
   getServerLogs(){ echo "__mock";}
-  export -f setVARS prepareEnv getPods getSlavePods cleanPods copyDataToPodsShared copyTestFilesToMasterPod cleanMasterPod lsPods runTest copyTestResultsToLocal getServerLogs
+  export -f _set_variables _prepare_env _get_pods _get_slave_pods cleanPods copyDataToPodsShared copyTestFilesToMasterPod cleanMasterPod lsPods runTest copyTestResultsToLocal getServerLogs
   run jmeter
   CALL_NUMBER=12
   [ "$(echo "$output" | grep "__mock" | wc -l)" -eq $CALL_NUMBER ]
