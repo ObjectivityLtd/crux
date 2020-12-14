@@ -1,8 +1,6 @@
 #!/bin/bash
 #help functions
 
-source ../../lib/utils.sh |:
-
 _wait_for_pod() { #public: wait for pods of a given type to be in Running state
   local _service_replicas="0/1"
   local _service_namespace=$1
