@@ -22,7 +22,7 @@ setFakeVARS(){
   shared_mount=shared_mount
 }
 
-@test "UT: copyTestResultsToLocal copies report, results.csv, errors.xml and jmeter.log from master pod to local drive" {
+@test "UT: _download_test_results copies report, results.csv, errors.xml and jmeter.log from master pod to local drive" {
   kubectl(){
     echo "$@"
   }
@@ -31,23 +31,23 @@ setFakeVARS(){
   }
   export -f kubectl head
   setFakeVARS
-  run copyTestResultsToLocal
-  assert_output --partial "cp tenant/master_pod:/report_dir local_report_dir/"
-  assert_output --partial "cp tenant/master_pod:/results.csv working_dir/../tmp/results.csv"
-  assert_output --partial "tenant/master_pod:/test/jmeter.log working_dir/../tmp/jmeter.log"
-  assert_output --partial "tenant/master_pod:/test/errors.xml working_dir/../tmp/errors.xml"
+  run _download_test_results cluster_namespace master_pod
+  assert_output --partial "cp cluster_namespace/master_pod:/report_dir local_report_dir/"
+  assert_output --partial "cp cluster_namespace/master_pod:/results.csv working_dir/../tmp/results.csv"
+  assert_output --partial "cluster_namespace/master_pod:/test/jmeter.log working_dir/../tmp/jmeter.log"
+  assert_output --partial "cluster_namespace/master_pod:/test/errors.xml working_dir/../tmp/errors.xml"
   unset head
 }
 
 
-@test "UT: runTest executes remote /load_test script with params" {
+@test "UT: _run_jmeter_test executes remote /load_test script with params" {
   kubectl(){
     echo "$@"
   }
   export -f kubectl
   setFakeVARS
-  run runTest
-  assert_output --partial "exec -i -n tenant master_pod -- /bin/bash /load_test test_name  report_args user_args"
+  run _run_jmeter_test cluster_namespace master_pod
+  assert_output --partial "exec -i -n cluster_namespace master_pod -- /bin/bash /load_test test_name  report_args user_args"
 }
 
 @test "UT: _copy_data_to_shared_drive copies data to all pods " {
@@ -156,13 +156,13 @@ setFakeVARS(){
   _get_slave_pods() { echo "__mock"; }
   _clean_pods(){ echo "__mock"; }
   _copy_data_to_shared_drive(){ echo "__mock"; }
-  copyTestFilesToMasterPod(){ echo "__mock"; }
-  cleanMasterPod(){ echo "__mock"; }
-  lsPods(){ echo "__mock"; }
-  runTest(){ echo "__mock"; }
-  copyTestResultsToLocal(){ echo "__mock"; }
+  _copy_jmx_to_master_pod(){ echo "__mock"; }
+  _clean_master_pod(){ echo "__mock"; }
+  _list_pods_contents(){ echo "__mock"; }
+  _run_jmeter_test(){ echo "__mock"; }
+  _download_test_results(){ echo "__mock"; }
   getServerLogs(){ echo "__mock";}
-  export -f _set_variables _prepare_env _get_pods _get_slave_pods _clean_pods _copy_data_to_shared_drive copyTestFilesToMasterPod cleanMasterPod lsPods runTest copyTestResultsToLocal getServerLogs
+  export -f _set_variables _prepare_env _get_pods _get_slave_pods _clean_pods _copy_data_to_shared_drive _copy_jmx_to_master_pod _clean_master_pod _list_pods_contents _run_jmeter_test _download_test_results getServerLogs
   run jmeter
   CALL_NUMBER=12
   [ "$(echo "$output" | grep "__mock" | wc -l)" -eq $CALL_NUMBER ]

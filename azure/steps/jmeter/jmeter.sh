@@ -62,13 +62,14 @@ getServerLogs() {
     kubectl cp "$tenant/$pod:/test/jmeter-server.log" "$server_logs_dir/$pod-jmeter-server.log"
   done
 }
-lsPods() {
+_list_pods_contents() {
+  local _cluster_namespace=$1
   for pod in "${pods_array[@]}"; do
     echo "$test_dir on $pod"
-    kubectl exec -i -n $tenant $pod -- ls -1 "/$test_dir/" |awk '$0="  --"$0'
+    kubectl exec -i -n "$_cluster_namespace" $pod -- ls -1 "/$test_dir/" |awk '$0="  --"$0'
 
     echo "$shared_mount on $pod"
-    kubectl exec -i -n $tenant $pod -- ls -1 "/$shared_mount/" |awk '$0="  --"$0'
+    kubectl exec -i -n "$_cluster_namespace" $pod -- ls -1 "/$shared_mount/" |awk '$0="  --"$0'
   done
 }
 
@@ -80,30 +81,38 @@ _copy_data_to_shared_drive() {
     echo "Copying contents of repository $_folder_basename directory to pod : $_master_pod"
     kubectl cp "$root_dir/$data_dir" -n "$_cluster_namespace" "$_master_pod:$shared_mount/"
     echo "Unpacking data on pod : $_master_pod to $shared_mount folder"
-    kubectl exec -i -n "$_cluster_namespace" $_master_pod -- bash -c "cp -r $shared_mount/$_folder_basename/* $shared_mount/" #unpack to /test
+    kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- bash -c "cp -r $shared_mount/$_folder_basename/* $shared_mount/" #unpack to /test
 }
 #jmx files should land on /test at master pod
-copyTestFilesToMasterPod() {
-  kubectl cp "$root_dir/$jmx" -n $tenant "$master_pod:/$test_dir/$test_name"
+_copy_jmx_to_master_pod() {
+  local _cluster_namespace=$1
+  local _master_pod=$2
+  kubectl cp "$root_dir/$jmx" -n "$_cluster_namespace" "$_master_pod:/$test_dir/$test_name"
 }
 #clean previous run thins if necessary
-cleanMasterPod() {
-  kubectl exec -i -n $tenant $master_pod -- rm -Rf "$tmp"
-  kubectl exec -i -n $tenant $master_pod -- mkdir -p "$tmp/$report_dir"
-  kubectl exec -i -n $tenant $master_pod -- touch "$test_dir/errors.xml"
+_clean_master_pod() {
+  local _cluster_namespace=$1
+  local _master_pod=$2
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- rm -Rf "$tmp"
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- mkdir -p "$tmp/$report_dir"
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- touch "$test_dir/errors.xml"
 }
 #runs actual tests
-runTest() {
+_run_jmeter_test() {
+  local _cluster_namespace=$1
+  local _master_pod=$2
   printf "\t\n Jmeter user args $user_args \n"
-  kubectl exec -i -n $tenant $master_pod -- /bin/bash /load_test $test_name " $report_args $user_args "
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- /bin/bash /load_test $test_name " $report_args $user_args "
 }
 #copy artifacts from master jmeter
-copyTestResultsToLocal() {
-  kubectl cp "$tenant/$master_pod:$tmp/$report_dir" "$local_report_dir/"
-  kubectl cp "$tenant/$master_pod:$tmp/results.csv" "$working_dir/../tmp/results.csv"
-  kubectl cp "$tenant/$master_pod:/test/jmeter.log" "$working_dir/../tmp/jmeter.log"
-  kubectl cp "$tenant/$master_pod:/test/errors.xml" "$working_dir/../tmp/errors.xml"
-  head -n10 "$working_dir/../tmp/results.csv"
+_download_test_results() {
+  local _cluster_namespace=$1
+  local _master_pod=$2
+  kubectl cp "$_cluster_namespace/$_master_pod:$tmp/$report_dir" "$local_report_dir/"
+  kubectl cp "$_cluster_namespace/$_master_pod:$tmp/results.csv" "$working_dir/../../../tmp/results.csv"
+  kubectl cp "$_cluster_namespace/$_master_pod:/test/jmeter.log" "$working_dir/../../../tmp/jmeter.log"
+  kubectl cp "$_cluster_namespace/$_master_pod:/test/errors.xml" "$working_dir/../../../tmp/errors.xml"
+  head -n10 "$working_dir/../../../tmp/results.csv"
 }
 
 jmeter() {
@@ -121,11 +130,11 @@ jmeter() {
   _get_slave_pods "$_cluster_namespace" #sets slave_pods
   _clean_pods "$_cluster_namespace" "$master_pod"
   _copy_data_to_shared_drive "$_cluster_namespace" "$_master_pod"
-  copyTestFilesToMasterPod
-  cleanMasterPod
-  lsPods
-  runTest
-  copyTestResultsToLocal
+  _copy_jmx_to_master_pod "$_cluster_namespace" "$_master_pod"
+  _clean_master_pod "$_cluster_namespace" "$_master_pod"
+  _list_pods_contents "$_cluster_namespace"
+  _run_jmeter_test "$_cluster_namespace" "$_master_pod"
+  _download_test_results "$_cluster_namespace" "$_master_pod"
   getServerLogs
 }
 
