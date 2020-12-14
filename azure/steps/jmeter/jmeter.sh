@@ -98,7 +98,7 @@ copyTestResultsToLocal() {
   head -n10 "$working_dir/../tmp/results.csv"
 }
 
-run_main() {
+jmeter () {
   #server logs need to be copied back instead of writing to a shared drive because of IO
   #data for sts should be copied to /test (not shared)
   #data for all e.g. CSV should be copied to /shared
@@ -117,5 +117,5 @@ run_main() {
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  run_main "$@"
+  jmeter "$@"
 fi

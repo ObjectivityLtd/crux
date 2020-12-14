@@ -4,8 +4,8 @@ load $HOME/test/test_helper/bats-assert/load.bash
 load $HOME/test/test_helper/bats-support/load.bash
 
 setup(){
-  source jmeter.sh
-  test_tmp_dir=$(mktemp -d -t crux-XXXXXXXXXX)
+  source "$BATS_TEST_DIRNAME/jmeter.sh"
+  test_tmp_dir=$BATS_TMPDIR
 }
 setFakeVARS(){
   tenant=tenant
@@ -149,7 +149,7 @@ setFakeVARS(){
   refute_output --partial "exec -i -n slave1 -- bash -c rm -Rf /*.log"
 }
 
-@test "UT: run_main calls all composing functions" {
+@test "UT: jmeter calls all composing functions" {
   setVARS(){ echo "__mock"; }
   prepareEnv() { echo "__mock"; }
   getPods() { echo "__mock"; }
@@ -163,7 +163,7 @@ setFakeVARS(){
   copyTestResultsToLocal(){ echo "__mock"; }
   getServerLogs(){ echo "__mock";}
   export -f setVARS prepareEnv getPods getSlavePods cleanPods copyDataToPodsShared copyTestFilesToMasterPod cleanMasterPod lsPods runTest copyTestResultsToLocal getServerLogs
-  run run_main
+  run jmeter
   CALL_NUMBER=12
   [ "$(echo "$output" | grep "__mock" | wc -l)" -eq $CALL_NUMBER ]
 }
