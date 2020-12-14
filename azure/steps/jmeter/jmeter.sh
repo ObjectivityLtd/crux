@@ -12,8 +12,8 @@ function _set_variables() {
   data_dir_relative="$4"
   user_args="$5"
   root_dir=$working_dir/../../../
-  local_report_dir=$working_dir/../../tmp/report
-  server_logs_dir=$working_dir/../../tmp/server_logs
+  local_report_dir=$working_dir/../../../kubernetes/tmp/report
+  server_logs_dir=$working_dir/../../../kubernetes/tmp/server_logs
   report_dir=report
   test_dir=/test
   tmp=/tmp
@@ -41,15 +41,16 @@ _get_pods() {
   pods=$(kubectl get po -n $tenant --field-selector 'status.phase==Running' | grep jmeter- | awk '{print $1}' | xargs)
   IFS=' ' read -r -a pods_array <<<"$pods"
 }
-cleanPods() {
+_clean_pods() {
+  local _cluster_namespace=$1
   echo "Cleaning on $master_pod"
-  kubectl exec -i -n $tenant $master_pod -- bash -c "rm -Rf $shared_mount/*"
+  kubectl exec -i -n "$_cluster_namespace" $master_pod -- bash -c "rm -Rf $shared_mount/*"
   for pod in "${pods_array[@]}"; do
     echo "Cleaning on $pod"
     #we only clean test data, jmeter-server.log needs to stay
-    kubectl exec -i -n $tenant $pod -- bash -c "rm -Rf $test_dir/*.csv"
-    kubectl exec -i -n $tenant $pod -- bash -c "rm -Rf $test_dir/*.py"
-    kubectl exec -i -n $tenant $pod -- bash -c "rm -Rf $test_dir/*.jmx"
+    kubectl exec -i -n "$_cluster_namespace" $pod -- bash -c "rm -Rf $test_dir/*.csv"
+    kubectl exec -i -n "$_cluster_namespace" $pod -- bash -c "rm -Rf $test_dir/*.py"
+    kubectl exec -i -n "$_cluster_namespace" $pod -- bash -c "rm -Rf $test_dir/*.jmx"
   done
 }
 #this should be sequential copy instead of shared drive because of IO
@@ -115,7 +116,7 @@ jmeter() {
   _prepare_env "$_cluster_namespace"
   _get_pods "$_cluster_namespace"
   _get_slave_pods "$_cluster_namespace"
-  cleanPods
+  _clean_pods "$_cluster_namespace"
   copyDataToPodsShared
   copyTestFilesToMasterPod
   cleanMasterPod
