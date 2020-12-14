@@ -50,15 +50,15 @@ setFakeVARS(){
   assert_output --partial "exec -i -n tenant master_pod -- /bin/bash /load_test test_name  report_args user_args"
 }
 
-@test "UT: copyDataToPodsShared copies data to all pods " {
+@test "UT: _copy_data_to_shared_drive copies data to all pods " {
   kubectl(){
     echo "$@"
   }
   export -f kubectl
   # shellcheck disable=SC2030
   setFakeVARS
-  run copyDataToPodsShared
-  assert_output --partial "cp root_dir/data_dir -n tenant master_pod:shared_mount/"
+  run _copy_data_to_shared_drive cluster_namespace master_pod
+  assert_output --partial "cp root_dir/data_dir -n cluster_namespace master_pod:shared_mount/"
 }
 
 @test "UT: getServerLogs archives all logs from slaves" {
@@ -127,26 +127,26 @@ setFakeVARS(){
   unset pwd
 }
 
-@test "UT: cleanPods removes csv, py and jmx files" {
+@test "UT: _clean_pods removes csv, py and jmx files" {
   kubectl(){
     echo "$@"
   }
   export -f kubectl
   pods_array=(slave1)
-  run cleanPods
-  assert_output --partial "exec -i -n slave1 -- bash -c rm -Rf /*.csv"
-  assert_output --partial "exec -i -n slave1 -- bash -c rm -Rf /*.py"
-  assert_output --partial "exec -i -n slave1 -- bash -c rm -Rf /*.jmx"
+  run _clean_pods cluster_namespace master_pod
+  assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf /*.csv"
+  assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf /*.py"
+  assert_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf /*.jmx"
 }
 
-@test "UT: cleanPods does not remove .log files" {
+@test "UT: _clean_pods does not remove .log files" {
   kubectl(){
     echo "$@"
   }
   export -f kubectl
   pods_array=(slave1)
-  run cleanPods
-  refute_output --partial "exec -i -n slave1 -- bash -c rm -Rf /*.log"
+  run _clean_pods cluster_namespace master_pod
+  refute_output --partial "exec -i -n cluster_namespace slave1 -- bash -c rm -Rf /*.log"
 }
 
 @test "UT: jmeter calls all composing functions" {
@@ -154,15 +154,15 @@ setFakeVARS(){
   _prepare_env() { echo "__mock"; }
   _get_pods() { echo "__mock"; }
   _get_slave_pods() { echo "__mock"; }
-  cleanPods(){ echo "__mock"; }
-  copyDataToPodsShared(){ echo "__mock"; }
+  _clean_pods(){ echo "__mock"; }
+  _copy_data_to_shared_drive(){ echo "__mock"; }
   copyTestFilesToMasterPod(){ echo "__mock"; }
   cleanMasterPod(){ echo "__mock"; }
   lsPods(){ echo "__mock"; }
   runTest(){ echo "__mock"; }
   copyTestResultsToLocal(){ echo "__mock"; }
   getServerLogs(){ echo "__mock";}
-  export -f _set_variables _prepare_env _get_pods _get_slave_pods cleanPods copyDataToPodsShared copyTestFilesToMasterPod cleanMasterPod lsPods runTest copyTestResultsToLocal getServerLogs
+  export -f _set_variables _prepare_env _get_pods _get_slave_pods _clean_pods _copy_data_to_shared_drive copyTestFilesToMasterPod cleanMasterPod lsPods runTest copyTestResultsToLocal getServerLogs
   run jmeter
   CALL_NUMBER=12
   [ "$(echo "$output" | grep "__mock" | wc -l)" -eq $CALL_NUMBER ]

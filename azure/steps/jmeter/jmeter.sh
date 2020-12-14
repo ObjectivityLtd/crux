@@ -38,19 +38,20 @@ _get_slave_pods() {
 }
 _get_pods() {
   local _cluster_namespace=$1
-  pods=$(kubectl get po -n $tenant --field-selector 'status.phase==Running' | grep jmeter- | awk '{print $1}' | xargs)
+  pods=$(kubectl get po -n _cluster_namespace --field-selector 'status.phase==Running' | grep jmeter- | awk '{print $1}' | xargs)
   IFS=' ' read -r -a pods_array <<<"$pods"
 }
 _clean_pods() {
   local _cluster_namespace=$1
-  echo "Cleaning on $master_pod"
-  kubectl exec -i -n "$_cluster_namespace" $master_pod -- bash -c "rm -Rf $shared_mount/*"
+  local _master_pod=$2
+  echo "Cleaning on $_master_pod"
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- bash -c "rm -Rf $shared_mount/*"
   for pod in "${pods_array[@]}"; do
     echo "Cleaning on $pod"
     #we only clean test data, jmeter-server.log needs to stay
-    kubectl exec -i -n "$_cluster_namespace" $pod -- bash -c "rm -Rf $test_dir/*.csv"
-    kubectl exec -i -n "$_cluster_namespace" $pod -- bash -c "rm -Rf $test_dir/*.py"
-    kubectl exec -i -n "$_cluster_namespace" $pod -- bash -c "rm -Rf $test_dir/*.jmx"
+    kubectl exec -i -n "$_cluster_namespace" "$pod" -- bash -c "rm -Rf $test_dir/*.csv"
+    kubectl exec -i -n "$_cluster_namespace" "$pod" -- bash -c "rm -Rf $test_dir/*.py"
+    kubectl exec -i -n "$_cluster_namespace" "$pod" -- bash -c "rm -Rf $test_dir/*.jmx"
   done
 }
 #this should be sequential copy instead of shared drive because of IO
@@ -72,12 +73,14 @@ lsPods() {
 }
 
 #sts and csv data should be copied to /shared which is a pvc mount
-copyDataToPodsShared() {
-    folder_basename=$(echo "${data_dir##*/}")
-    echo "Copying contents of repository $folder_basename directory to pod : $master_pod"
-    kubectl cp "$root_dir/$data_dir" -n $tenant "$master_pod:$shared_mount/"
-    echo "Unpacking data on pod : $master_pod to $shared_mount folder"
-    kubectl exec -i -n $tenant $master_pod -- bash -c "cp -r $shared_mount/$folder_basename/* $shared_mount/" #unpack to /test
+_copy_data_to_shared_drive() {
+    local _cluster_namespace=$1
+    local _master_pod=$2
+    local _folder_basename=$(echo "${data_dir##*/}")
+    echo "Copying contents of repository $_folder_basename directory to pod : $_master_pod"
+    kubectl cp "$root_dir/$data_dir" -n "$_cluster_namespace" "$_master_pod:$shared_mount/"
+    echo "Unpacking data on pod : $_master_pod to $shared_mount folder"
+    kubectl exec -i -n "$_cluster_namespace" $_master_pod -- bash -c "cp -r $shared_mount/$_folder_basename/* $shared_mount/" #unpack to /test
 }
 #jmx files should land on /test at master pod
 copyTestFilesToMasterPod() {
@@ -113,11 +116,11 @@ jmeter() {
   local _jmeter_data_dir_relative="$4"
   local _jmeter_args="$5"
   _set_variables "$_cluster_namespace" "$_jmeter_scenario" "$_jmeter_data_dir" "$_jmeter_data_dir_relative" "$_jmeter_args"
-  _prepare_env "$_cluster_namespace"
-  _get_pods "$_cluster_namespace"
-  _get_slave_pods "$_cluster_namespace"
-  _clean_pods "$_cluster_namespace"
-  copyDataToPodsShared
+  _prepare_env "$_cluster_namespace" #sets master_pod
+  _get_pods "$_cluster_namespace" #sets pods
+  _get_slave_pods "$_cluster_namespace" #sets slave_pods
+  _clean_pods "$_cluster_namespace" "$master_pod"
+  _copy_data_to_shared_drive "$_cluster_namespace" "$_master_pod"
   copyTestFilesToMasterPod
   cleanMasterPod
   lsPods
