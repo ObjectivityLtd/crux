@@ -17,7 +17,7 @@ function _set_variables() { #public: sets shared variables for the script
   shared_mount="/shared"
 }
 
-_prepare_env() { #public: prepares env for execution
+_prepare_env() { #public: prepares env for execution, sets MASTER_POD
   local _cluster_namespace=$1
   local _local_report_dir=$2
   local _server_logs_dir=$3
@@ -29,16 +29,17 @@ _prepare_env() { #public: prepares env for execution
   mkdir -p "$_local_report_dir" "$_server_logs_dir"
 }
 
-_get_slave_pods() {
+_get_slave_pods() { #public: sets SLAVE_PODS_ARRAY
   local _cluster_namespace=$1
   local _slave_pods=$(kubectl get po -n "$_cluster_namespace" --field-selector 'status.phase==Running' | grep jmeter-slave | awk '{print $1}' | xargs)
   IFS=' ' read -r -a SLAVE_PODS_ARRAY <<<"$_slave_pods"
 }
-_get_pods() {
+_get_pods() { #public: sets SLAVE_PODS_ARRAY
   local _cluster_namespace=$1
-  local _pods=$(kubectl get po -n $_cluster_namespace --field-selector 'status.phase==Running' | grep jmeter- | awk '{print $1}' | xargs)
+  local _pods=$(kubectl get po -n "$_cluster_namespace" --field-selector 'status.phase==Running' | grep jmeter- | awk '{print $1}' | xargs)
   IFS=' ' read -r -a PODS_ARRAY <<<"$_pods"
 }
+
 _clean_pods() {
   local _cluster_namespace=$1
   local _master_pod=$2
