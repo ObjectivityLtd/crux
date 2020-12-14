@@ -117,7 +117,7 @@ _clean_master_pod() { #public: resets folders used in tests
   local _error_file=$6
 
   kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- rm -Rf "$_tmp"
-  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- mkdir -p "$tmp/$_report_dir"
+  kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- mkdir -p "$_tmp/$_report_dir"
   kubectl exec -i -n "$_cluster_namespace" "$_master_pod" -- touch "$_test_dir/$_error_file"
 }
 #runs actual tests
@@ -158,7 +158,7 @@ jmeter() {
 
   #test flow
   _clean_pods "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}" #OK
-  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$SHARED_MOUNT" "$DATA_DIR"#OK
+  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$SHARED_MOUNT" "$DATA_DIR" #OK
   _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$JMX" "$TEST_DIR" "$TEST_NAME" #OK
   _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$TMP" "$REPORT_DIR" "$ERROR_FILE"
   _list_pods_contents "$_cluster_namespace" "$TEST_DIR" "${PODS_ARRAY[@]}"
