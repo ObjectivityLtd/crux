@@ -101,12 +101,14 @@ _download_test_results() { #public: downloads test artifacts from master to loca
   local _cluster_namespace=$1
   local _master_pod=$2
   local _report_dir=$3
-  local _tmp=$4
-  local _root_dir=$5
-  kubectl cp "$_cluster_namespace/$_master_pod:$_tmp/$_report_dir" "$_root_dir/kubernetes/tmp/report/"
-  kubectl cp "$_cluster_namespace/$_master_pod:$_tmp/results.csv" "$_root_dir/kubernetes/tmp/results.csv"
-  kubectl cp "$_cluster_namespace/$_master_pod:/test/jmeter.log" "$_root_dir/kubernetes/tmp/jmeter.log"
-  kubectl cp "$_cluster_namespace/$_master_pod:/test/errors.xml" "$_root_dir/kubernetes/tmp/errors.xml"
+  local _results_file=$4
+  local _jmeter_log_file=$5
+  local _jmeter_error_file=$6
+  local _root_dir=$7
+  kubectl cp "$_cluster_namespace/$_master_pod:$_report_dir" "$_root_dir/kubernetes/tmp/report/"
+  kubectl cp "$_cluster_namespace/$_master_pod:$_results_file" "$_root_dir/kubernetes/tmp"
+  kubectl cp "$_cluster_namespace/$_master_pod:$_jmeter_log_file" "$_root_dir/kubernetes/tmp/"
+  kubectl cp "$_cluster_namespace/$_master_pod:$_jmeter_error_file" "$_root_dir/kubernetes/tmp/"
 }
 _download_server_logs() { #public: downloads jmeter servers logs to local storage so we can archive them as pipeline artifacts
   local _cluster_namespace=$1
@@ -153,7 +155,7 @@ jmeter() {
   _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TMP" "$REMOTE_TMP/$REMOTE_REPORT_DIR" "$REMOTE_TEST_DIR/$REMOTE_ERROR_FILE" #OK
   _list_pods_contents "$_cluster_namespace" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"                           #OK
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME" "$REPORT_ARGS" "$_jmeter_args"
-  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$REMOTE_REPORT_DIR" "$REMOTE_TMP" "$_root_dir"
+  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TMP/$REMOTE_REPORT_DIR" "$REMOTE_TMP/$REMOTE_RESULTS_FILE" "/test/jmeter.log" "/test/errors.xml" "$_root_dir"
   _download_server_logs "$_cluster_namespace" "$_local_server_logs_dir" "$REMOTE_TEST_DIR" "${SLAVE_PODS_ARRAY[@]}"
 }
 
