@@ -67,12 +67,10 @@ _copy_data_to_shared_drive() { #public: all test data are copied to /shared whic
 _copy_jmx_to_master_pod() { #public: copies .jmx file to test folder /test at master pod
   local _cluster_namespace=$1
   local _master_pod=$2
-  local _root_dir=$3
-  local _jmx=$4
-  local _test_dir=$5
-  local _test_name=$6
+  local _local_jmx_path=$3/$4
+  local _remote_jmx_path=$5/$6
 
-  kubectl cp "$_root_dir/$_jmx" -n "$_cluster_namespace" "$_master_pod:/$_test_dir/$_test_name"
+  kubectl cp "$_local_jmx" -n "$_cluster_namespace" "$_master_pod:/$_remote_jmx_path"
 }
 
 _clean_master_pod() { #public: resets folders used in tests
@@ -149,11 +147,11 @@ jmeter() {
   _get_pods "$_cluster_namespace"                                                                                                  #sets PODS_ARRAY
   _get_slave_pods "$_cluster_namespace"                                                                                            #sets SLAVE_PODS_ARRAY
   #test flow
-  _clean_pods "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"                     #OK
-  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$_root_dir" "$REMOTE_SHARED_MOUNT" "$_jmeter_data_dir"           #OK
-  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$_root_dir" "$_jmeter_scenario" "$REMOTE_TEST_DIR" "$TEST_NAME"     #OK
-  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TMP" "$REMOTE_TMP/$REMOTE_REPORT_DIR" "$REMOTE_TEST_DIR/$REMOTE_ERROR_FILE" #OK
-  _list_pods_contents "$_cluster_namespace" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"                           #OK
+  _clean_pods "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"
+  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$_root_dir" "$REMOTE_SHARED_MOUNT" "$_jmeter_data_dir"
+  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$_root_dir" "$_jmeter_scenario" "$REMOTE_TEST_DIR" "$TEST_NAME"
+  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TMP" "$REMOTE_TMP/$REMOTE_REPORT_DIR" "$REMOTE_TEST_DIR/$REMOTE_ERROR_FILE"
+  _list_pods_contents "$_cluster_namespace" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME" "$REPORT_ARGS" "$_jmeter_args"
   _download_test_results "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TMP/$REMOTE_REPORT_DIR" "$REMOTE_TMP/$REMOTE_RESULTS_FILE" "/test/jmeter.log" "/test/errors.xml" "$_root_dir"
   _download_server_logs "$_cluster_namespace" "$_local_server_logs_dir" "$REMOTE_TEST_DIR" "${SLAVE_PODS_ARRAY[@]}"
