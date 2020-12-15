@@ -17,7 +17,7 @@ setup(){
   }
   export -f kubectl head
   
-  run _download_test_results cluster_namespace master_pod /tmp/report_dir /tmp/results.csv /test/jmeter.log /test/errors.xml root_dir
+  run _download_test_results cluster_namespace master_pod /tmp/report_dir /tmp/results.csv /test/jmeter.log /test/errors.xml root_dir/kubernetes/tmp
   assert_output --partial "cp cluster_namespace/master_pod:/tmp/report_dir root_dir/kubernetes/tmp/report"
   assert_output --partial "cp cluster_namespace/master_pod:/tmp/results.csv root_dir/kubernetes/tmp/results.csv"
   assert_output --partial "cluster_namespace/master_pod:/test/jmeter.log root_dir/kubernetes/tmp/jmeter.log"

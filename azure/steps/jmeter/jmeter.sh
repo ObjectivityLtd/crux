@@ -67,9 +67,8 @@ _copy_data_to_shared_drive() { #public: all test data are copied to /shared whic
 _copy_jmx_to_master_pod() { #public: copies .jmx file to test folder /test at master pod
   local _cluster_namespace=$1
   local _master_pod=$2
-  local _local_jmx_path=$3/$4
-  local _remote_jmx_path=$5/$6
-
+  local _local_jmx_path=$3
+  local _remote_jmx_path=$4
   kubectl cp "$_local_jmx_path" -n "$_cluster_namespace" "$_master_pod:/$_remote_jmx_path"
 }
 
@@ -102,19 +101,18 @@ _download_test_results() { #public: downloads test artifacts from master to loca
   local _results_file=$4
   local _jmeter_log_file=$5
   local _jmeter_error_file=$6
-  local _root_dir=$7
-  kubectl cp "$_cluster_namespace/$_master_pod:$_report_dir" "$_root_dir/kubernetes/tmp/report/"
-  kubectl cp "$_cluster_namespace/$_master_pod:$_results_file" "$_root_dir/kubernetes/tmp/results.csv"
-  kubectl cp "$_cluster_namespace/$_master_pod:$_jmeter_log_file" "$_root_dir/kubernetes/tmp/jmeter.log"
-  kubectl cp "$_cluster_namespace/$_master_pod:$_jmeter_error_file" "$_root_dir/kubernetes/tmp/errors.xml"
+  local _dir=$7
+  kubectl cp "$_cluster_namespace/$_master_pod:$_report_dir" "$_dir/report/"
+  kubectl cp "$_cluster_namespace/$_master_pod:$_results_file" "$_dir/results.csv"
+  kubectl cp "$_cluster_namespace/$_master_pod:$_jmeter_log_file" "$_dir/jmeter.log"
+  kubectl cp "$_cluster_namespace/$_master_pod:$_jmeter_error_file" "$_dir/errors.xml"
 }
 _download_server_logs() { #public: downloads jmeter servers logs to local storage so we can archive them as pipeline artifacts
   local _cluster_namespace=$1
   local _server_logs_dir=$2
-  local _test_dir=$3
+  local _server_log_file=$3
   shift 3
   local _slave_pods_array=("$@")
-  local _server_log_file="jmeter-server.log"
   for _pod in "${_slave_pods_array[@]}"; do
     echo "Downloading $_server_log_file from $_pod"
     kubectl cp "$_cluster_namespace/$_pod:/$_test_dir/$_server_log_file" "$_server_logs_dir/$_pod-$_server_log_file"
@@ -134,14 +132,17 @@ jmeter() {
   local _local_report_dir="$6"
   local _local_server_logs_dir="$7"
 
-  REMOTE_REPORT_DIR=report
-  REMOTE_TEST_DIR=/test
-  REMOTE_TMP=/tmp
-  TEST_NAME="$(basename "$_root_dir/$_jmeter_scenario")"
+  REMOTE_REPORT_DIR="/tmp/report"
+  REMOTE_RESULTS_FILE="/tmp/results.csv"
+  REMOTE_TEST_DIR="/test"
+  REMOTE_TMP="/tmp"
   REMOTE_SHARED_MOUNT="/shared"
-  REMOTE_ERROR_FILE="errors.xml"
-  REMOTE_RESULTS_FILE="results.csv"
-  REPORT_ARGS="-o $REMOTE_TMP/$REMOTE_REPORT_DIR -l $REMOTE_TMP/$REMOTE_RESULTS_FILE -e"
+  REMOTE_ERROR_FILE="/test/errors.xml"
+  REMOTE_LOG_FILE="/test/jmeter.log"
+  REMOTE_SERVER_LOG_FILE="/test/jmeter-server.log"
+
+  REPORT_ARGS="-o $REMOTE_REPORT_DIR -l $REMOTE_RESULTS_FILE -e"
+  TEST_NAME="$(basename "$_root_dir/$_jmeter_scenario")"
 
   _prepare_env "$_cluster_namespace" "$_local_report_dir" "$_local_server_logs_dir"                                               #sets MASTER_POD and created dirs
   _get_pods "$_cluster_namespace"                                                                                                  #sets PODS_ARRAY
@@ -149,12 +150,12 @@ jmeter() {
   #test flow
   _clean_pods "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"
   _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$_root_dir" "$REMOTE_SHARED_MOUNT" "$_jmeter_data_dir"
-  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$_root_dir" "$_jmeter_scenario" "$REMOTE_TEST_DIR" "$TEST_NAME"
-  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TMP" "$REMOTE_TMP/$REMOTE_REPORT_DIR" "$REMOTE_TEST_DIR/$REMOTE_ERROR_FILE"
+  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$_root_dir/$_jmeter_scenario" "$REMOTE_TEST_DIR/$TEST_NAME"
+  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TMP" "$REMOTE_REPORT_DIR" "$REMOTE_ERROR_FILE"
   _list_pods_contents "$_cluster_namespace" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME" "$REPORT_ARGS" "$_jmeter_args"
-  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TMP/$REMOTE_REPORT_DIR" "$REMOTE_TMP/$REMOTE_RESULTS_FILE" "/test/jmeter.log" "/test/errors.xml" "$_root_dir"
-  _download_server_logs "$_cluster_namespace" "$_local_server_logs_dir" "$REMOTE_TEST_DIR" "${SLAVE_PODS_ARRAY[@]}"
+  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$REMOTE_REPORT_DIR" "$REMOTE_RESULTS_FILE" "$REMOTE_LOG_FILE" "$REMOTE_ERROR_FILE" "$_root_dir/kubernetes/tmp"
+  _download_server_logs "$_cluster_namespace" "$_local_server_logs_dir" "$REMOTE_SERVER_LOG_FILE" "${SLAVE_PODS_ARRAY[@]}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
