@@ -131,9 +131,9 @@ jmeter() {
   local _jmeter_args="$5"
   local _local_report_dir="$6"
   local _local_server_logs_dir="$7"
+  local _remote_report_dir=$8
+  local _remote_results_file=$9
 
-  REMOTE_REPORT_DIR="/tmp/report"
-  REMOTE_RESULTS_FILE="/tmp/results.csv"
   REMOTE_TEST_DIR="/test"
   REMOTE_TMP="/tmp"
   REMOTE_SHARED_MOUNT="/shared"
@@ -141,7 +141,7 @@ jmeter() {
   REMOTE_LOG_FILE="/test/jmeter.log"
   REMOTE_SERVER_LOG_FILE="/test/jmeter-server.log"
 
-  REPORT_ARGS="-o $REMOTE_REPORT_DIR -l $REMOTE_RESULTS_FILE -e"
+  REPORT_ARGS="-o $_remote_report_dir -l $_remote_results_file -e"
   TEST_NAME="$(basename "$_root_dir/$_jmeter_scenario")"
 
   _prepare_env "$_cluster_namespace" "$_local_report_dir" "$_local_server_logs_dir"                                               #sets MASTER_POD and created dirs
@@ -151,10 +151,10 @@ jmeter() {
   _clean_pods "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"
   _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$_root_dir" "$REMOTE_SHARED_MOUNT" "$_jmeter_data_dir"
   _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$_root_dir/$_jmeter_scenario" "$REMOTE_TEST_DIR/$TEST_NAME"
-  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TMP" "$REMOTE_REPORT_DIR" "$REMOTE_ERROR_FILE"
+  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TMP" "$_remote_report_dir" "$REMOTE_ERROR_FILE"
   _list_pods_contents "$_cluster_namespace" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME" "$REPORT_ARGS" "$_jmeter_args"
-  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$REMOTE_REPORT_DIR" "$REMOTE_RESULTS_FILE" "$REMOTE_LOG_FILE" "$REMOTE_ERROR_FILE" "$_root_dir/kubernetes/tmp"
+  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$_remote_report_dir" "$_remote_results_file" "$REMOTE_LOG_FILE" "$REMOTE_ERROR_FILE" "$_root_dir/kubernetes/tmp"
   _download_server_logs "$_cluster_namespace" "$_local_server_logs_dir" "$REMOTE_SERVER_LOG_FILE" "${SLAVE_PODS_ARRAY[@]}"
 }
 

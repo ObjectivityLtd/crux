@@ -15,3 +15,5 @@ steps:
         "$(_crux_jmeter_args)"
         $(System.DefaultWorkingDirectory)/$(_crux_report_dir)
         $(System.DefaultWorkingDirectory)/$(_crux_server_logs_dir)
+        $(_crux_remote_report_dir)
+        $(_crux_remote_results_file)
