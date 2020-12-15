@@ -61,7 +61,7 @@ setup(){
 
 @test "UT: _get_slave_pods returns slaves list" {
   kubectl(){
-    cat test_data/kubectl_get_pods.txt
+    cat "$BATS_TEST_DIRNAME"/test_data/kubectl_get_pods.txt
   }
   export -f kubectl
   _get_slave_pods
@@ -70,7 +70,7 @@ setup(){
 
 @test "UT: _get_pods returns all pods list" {
   kubectl(){
-    cat test_data/kubectl_get_pods.txt
+    cat "$BATS_TEST_DIRNAME"/test_data/kubectl_get_pods.txt
   }
   export -f kubectl
   _get_pods
