@@ -7,4 +7,11 @@ steps:
     condition: and(succeeded(), not(eq(variables.jmeter_tests, false)))
     inputs:
       scriptPath: $(_crux_steps_path)/jmeter/jmeter.sh
-      args: $(System.DefaultWorkingDirectory) $(_crux_cluster_deployment_namespace) $(_crux_repos_root)/$(_crux_jmeter_scenario) $(_crux_repos_root)/$(_crux_data_dir) "$(_crux_jmeter_args)"
+      args: >
+        $(System.DefaultWorkingDirectory)
+        $(_crux_cluster_deployment_namespace)
+        $(_crux_repos_root)/$(_crux_jmeter_scenario)
+        $(_crux_repos_root)/$(_crux_data_dir)
+        "$(_crux_jmeter_args)"
+        $(System.DefaultWorkingDirectory)/$(_crux_report_dir)
+        $(System.DefaultWorkingDirectory)/$(_crux_server_logs_dir)
