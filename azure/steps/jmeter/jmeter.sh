@@ -126,12 +126,14 @@ _download_server_logs() { #public: downloads jmeter servers logs to local storag
 #data for sts should be copied to /test (not shared)
 #data for all e.g. CSV should be copied to /shared
 jmeter() {
-  local _cluster_namespace="$1"
-  local _jmeter_scenario="$2"
-  local _jmeter_data_dir="$3"
-  local _jmeter_args="$4"
+  #ROOT_DIR="$(pwd)/../../../"
+  ROOT_DIR="$1"
+  local _cluster_namespace="$2"
+  local _jmeter_scenario="$3"
+  local _jmeter_data_dir="$4"
+  local _jmeter_args="$5"
   #set vars
-  ROOT_DIR="$(pwd)/../../../"
+
   LOCAL_REPORT_DIR="$ROOT_DIR/kubernetes/tmp/report"
   LOCAL_SERVER_LOGS_DIR="$ROOT_DIR/kubernetes/tmp/server_logs"
   REMOTE_REPORT_DIR=report
