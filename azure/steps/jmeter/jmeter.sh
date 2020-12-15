@@ -139,12 +139,13 @@ jmeter() {
   local _remote_log_file=${14}
   local _remote_server_log_file=${15}
   local _local_tmp=${16}
+
   local _report_args="-o $_remote_report_dir -l $_remote_results_file -e"
   local _jmx_file_name="$(basename "$_root_dir/$_jmeter_scenario")"
-  
-  _prepare_env "$_cluster_namespace" "$_local_report_dir" "$_local_server_logs_dir"                                               #sets MASTER_POD and created dirs
-  _get_pods "$_cluster_namespace"                                                                                                  #sets PODS_ARRAY
-  _get_slave_pods "$_cluster_namespace"                                                                                            #sets SLAVE_PODS_ARRAY
+
+  _prepare_env "$_cluster_namespace" "$_local_report_dir" "$_local_server_logs_dir" #sets MASTER_POD and created dirs
+  _get_pods "$_cluster_namespace"                                                   #sets PODS_ARRAY
+  _get_slave_pods "$_cluster_namespace"                                             #sets SLAVE_PODS_ARRAY
   #test flow
   _clean_pods "$_cluster_namespace" "$MASTER_POD" "$_remote_test_dir" "$_remote_shared_mount" "${PODS_ARRAY[@]}"
   _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$_root_dir" "$_remote_shared_mount" "$_jmeter_data_dir"
