@@ -10,6 +10,7 @@ _wait_for_sts() {
   local _http_code=""
   until [ "$_http_code" == "200" ]; do
     printf "\n\t Waiting for STS ... %s s (code: %s)" "$_sleep_sec" "$_http_code"
+    echo ""
     sleep "$_sleep_sec"
     _http_code=$(curl -s -o /dev/null -w "%{http_code}" http://$_ip:9191/sts/INITFILE?FILENAME=google.csv)
   done
