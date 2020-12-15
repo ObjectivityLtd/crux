@@ -138,6 +138,7 @@ jmeter() {
   local _remote_error_file=${13}
   local _remote_log_file=${14}
   local _remote_server_log_file=${15}
+  local _local_tmp=${16}
   local _report_args="-o $_remote_report_dir -l $_remote_results_file -e"
   local _jmx_file_name="$(basename "$_root_dir/$_jmeter_scenario")"
   
@@ -151,7 +152,7 @@ jmeter() {
   _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$_remote_tmp" "$_remote_report_dir" "$_remote_error_file"
   _list_pods_contents "$_cluster_namespace" "$_remote_test_dir" "$_remote_shared_mount" "${PODS_ARRAY[@]}"
   _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$_jmx_file_name" "$_report_args" "$_jmeter_user_args"
-  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$_remote_report_dir" "$_remote_results_file" "$_remote_log_file" "$_remote_error_file" "$_root_dir/kubernetes/tmp"
+  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$_remote_report_dir" "$_remote_results_file" "$_remote_log_file" "$_remote_error_file" "$_local_tmp"
   _download_server_logs "$_cluster_namespace" "$_local_server_logs_dir" "$_remote_server_log_file" "${SLAVE_PODS_ARRAY[@]}"
 }
 
