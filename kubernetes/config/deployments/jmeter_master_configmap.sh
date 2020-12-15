@@ -11,7 +11,7 @@ _wait_for_sts() {
   until [ "$_http_code" == "200" ]; do
     printf "\n\t Waiting for STS ... %s s" "$_sleep_sec"
     sleep "$_sleep_sec"
-    _http_code=$(curl -s -o /dev/null -w "%{http_code}" http://"$_ip":9191/sts/INITFILE?FILENAME=google.csv)
+    _http_code=$(curl -s -o /dev/null -w "%{http_code}" http://$_ip:9191/sts/INITFILE?FILENAME=google.csv)
     printf "\t\nHTTP Status: %s" "$_http_code"
   done
 }
@@ -26,14 +26,18 @@ _start_sts(){
   screen -A -m -d -S sts /jmeter/apache-jmeter-*/bin/$_sts_name -DjmeterPlugin.sts.addTimestamp=true -DjmeterPlugin.sts.datasetDirectory=/$_shared_dir &
 }
 _jmeter(){
-  local jmx=$1
+  local _test_dir=$1
+  local _shared_dir=$2
+  local _ip=$3
+  shift 3
+  local _jmx=$1
   shift 1
-  local fixed_args="-Gsts=$ip -Gchromedriver=/usr/bin/chromedriver -q /$test_dir/user.properties -Dserver.rmi.ssl.disable=true"
-  sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t /$test_dir/$jmx $@ $fixed_args -R $(getent ahostsv4 jmeter-slaves-svc | cut -d' ' -f1 | sort -u | awk -v ORS=, '{print $1}' | sed 's/,$//')
+  local _fixed_args="-Gsts=$_ip -Gchromedriver=/usr/bin/chromedriver -q /$_test_dir/user.properties -Dserver.rmi.ssl.disable=true"
+  sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t /$_test_dir/$_jmx $@ $_fixed_args -R $(getent ahostsv4 jmeter-slaves-svc | cut -d' ' -f1 | sort -u | awk -v ORS=, '{print $1}' | sed 's/,$//')
 
 }
 load_test(){
-  local _ip="$(hostname -i)"
+  local _ip=$(hostname -i)
   local _sts_name=simple-table-server.sh
   local _test_dir=/test
   local _shared_dir=/shared
@@ -42,6 +46,6 @@ load_test(){
   _kill_script "$_sts_name"
   _start_sts "$sts_name" "$_shared_dir"
   _wait_for_sts "$_sleep_sec" "$_ip"
-  _jmeter "$@"
+  _jmeter "$_test_dir" "$_shared_dir" "$_ip" "$@"
 }
 load_test "$@"
