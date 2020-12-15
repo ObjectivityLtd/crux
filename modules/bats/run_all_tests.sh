@@ -13,6 +13,6 @@ function run_all() {
   mkdir -p "$_result_folder"
   _run_module_tests junit "$_result_folder"
   _run_module_tests ../azure "$_result_folder"
-  _run_module_tests ../kubernetes/bin "$_result_folder"
+  _run_module_tests ../kubernetes/config/deployments "$_result_folder"
 }
 run_all
