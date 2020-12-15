@@ -48,9 +48,9 @@ data:
       local _test_dir=/test
       local _shared_dir=/shared
       local _sleep_sec=1
-      local _ip="$(hostname -i)"
+
       _kill_script "$_sts_name"
-      _start_sts "$sts_name" "$_shared_dir"
+      _start_sts "$_sts_name" "$_shared_dir"
       _wait_for_sts "$_sleep_sec" "$_ip"
       _jmeter "$_test_dir" "$_shared_dir" "$_ip" "$@"
     }
