@@ -106,9 +106,9 @@ _download_test_results() { #public: downloads test artifacts from master to loca
   local _jmeter_error_file=$6
   local _root_dir=$7
   kubectl cp "$_cluster_namespace/$_master_pod:$_report_dir" "$_root_dir/kubernetes/tmp/report/"
-  kubectl cp "$_cluster_namespace/$_master_pod:$_results_file" "$_root_dir/kubernetes/tmp"
-  kubectl cp "$_cluster_namespace/$_master_pod:$_jmeter_log_file" "$_root_dir/kubernetes/tmp/"
-  kubectl cp "$_cluster_namespace/$_master_pod:$_jmeter_error_file" "$_root_dir/kubernetes/tmp/"
+  kubectl cp "$_cluster_namespace/$_master_pod:$_results_file" "$_root_dir/kubernetes/tmp/results.csv"
+  kubectl cp "$_cluster_namespace/$_master_pod:$_jmeter_log_file" "$_root_dir/kubernetes/tmp/jmeter.log"
+  kubectl cp "$_cluster_namespace/$_master_pod:$_jmeter_error_file" "$_root_dir/kubernetes/tmp/errors.xml"
 }
 _download_server_logs() { #public: downloads jmeter servers logs to local storage so we can archive them as pipeline artifacts
   local _cluster_namespace=$1
@@ -145,7 +145,7 @@ jmeter() {
   REMOTE_RESULTS_FILE="results.csv"
   REPORT_ARGS="-o $REMOTE_TMP/$REMOTE_REPORT_DIR -l $REMOTE_TMP/$REMOTE_RESULTS_FILE -e"
 
-  _prepare_env "$_cluster_namespace" "$_local_report_dir" "$_local_server_logs_dir "                                               #sets MASTER_POD and created dirs
+  _prepare_env "$_cluster_namespace" "$_local_report_dir" "$_local_server_logs_dir"                                               #sets MASTER_POD and created dirs
   _get_pods "$_cluster_namespace"                                                                                                  #sets PODS_ARRAY
   _get_slave_pods "$_cluster_namespace"                                                                                            #sets SLAVE_PODS_ARRAY
   #test flow
