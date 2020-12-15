@@ -37,7 +37,7 @@ _jmeter(){
 
 }
 load_test(){
-  local _ip=$1
+  local _ip="$(hostname -i)"
   local _sts_name=simple-table-server.sh
   local _test_dir=/test
   local _shared_dir=/shared
