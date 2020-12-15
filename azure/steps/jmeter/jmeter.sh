@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+
 _prepare_env() { #public: prepares env for execution, sets MASTER_POD
   local _cluster_namespace=$1
   local _local_report_dir=$2
