@@ -53,7 +53,7 @@ setup(){
   }
   export -f kubectl
   local _slave_pods_array=(slave1 slave2)
-  run _download_server_logs  "$_cluster_namespace" "/foo" "test" "${_slave_pods_array[@]}"
+  run _download_server_logs  "$_cluster_namespace" "/foo" "/test/jmeter-server.log" "${_slave_pods_array[@]}"
   assert_output --partial "cp /slave2:/test/jmeter-server.log /foo/slave2-jmeter-server.log"
   assert_output --partial "cp /slave1:/test/jmeter-server.log /foo/slave1-jmeter-server.log"
 

@@ -16,6 +16,12 @@ variables:
 
   _crux_remote_report_dir: "/tmp/report"
   _crux_remote_results_file: "/tmp/results.csv"
+  _crux_remote_test_dir: "/test"
+  _crux_remote_tmp: "/tmp"
+  _crux_remote_shared_mount: "/shared"
+  _crux_remote_error_file: "/test/errors.xml"
+  _crux_remote_log_file: "/test/jmeter.log"
+  _crux_remote_server_log_file: "/test/jmeter-server.log"
 
   _crux_steps_path: $(System.DefaultWorkingDirectory)/azure/steps
   ${{ if not(eq(parameters.mode,'tests')) }}:

@@ -115,7 +115,7 @@ _download_server_logs() { #public: downloads jmeter servers logs to local storag
   local _slave_pods_array=("$@")
   for _pod in "${_slave_pods_array[@]}"; do
     echo "Downloading $_server_log_file from $_pod"
-    kubectl cp "$_cluster_namespace/$_pod:/$_test_dir/$_server_log_file" "$_server_logs_dir/$_pod-$_server_log_file"
+    kubectl cp "$_cluster_namespace/$_pod:$_server_log_file" "$_server_logs_dir/$_pod-jmeter-server.log"
   done
 }
 
@@ -123,39 +123,36 @@ _download_server_logs() { #public: downloads jmeter servers logs to local storag
 #data for sts should be copied to /test (not shared)
 #data for all e.g. CSV should be copied to /shared
 jmeter() {
-
   local _root_dir="$1"
   local _cluster_namespace="$2"
   local _jmeter_scenario="$3"
   local _jmeter_data_dir="$4"
-  local _jmeter_args="$5"
+  local _jmeter_user_args="$5"
   local _local_report_dir="$6"
   local _local_server_logs_dir="$7"
   local _remote_report_dir=$8
   local _remote_results_file=$9
-
-  REMOTE_TEST_DIR="/test"
-  REMOTE_TMP="/tmp"
-  REMOTE_SHARED_MOUNT="/shared"
-  REMOTE_ERROR_FILE="/test/errors.xml"
-  REMOTE_LOG_FILE="/test/jmeter.log"
-  REMOTE_SERVER_LOG_FILE="/test/jmeter-server.log"
-
-  REPORT_ARGS="-o $_remote_report_dir -l $_remote_results_file -e"
-  TEST_NAME="$(basename "$_root_dir/$_jmeter_scenario")"
-
+  local _remote_test_dir=${10}
+  local _remote_tmp=${11}
+  local _remote_shared_mount=${12}
+  local _remote_error_file=${13}
+  local _remote_log_file=${14}
+  local _remote_server_log_file=${15}
+  local _report_args="-o $_remote_report_dir -l $_remote_results_file -e"
+  local _jmx_file_name="$(basename "$_root_dir/$_jmeter_scenario")"
+  
   _prepare_env "$_cluster_namespace" "$_local_report_dir" "$_local_server_logs_dir"                                               #sets MASTER_POD and created dirs
   _get_pods "$_cluster_namespace"                                                                                                  #sets PODS_ARRAY
   _get_slave_pods "$_cluster_namespace"                                                                                            #sets SLAVE_PODS_ARRAY
   #test flow
-  _clean_pods "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"
-  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$_root_dir" "$REMOTE_SHARED_MOUNT" "$_jmeter_data_dir"
-  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$_root_dir/$_jmeter_scenario" "$REMOTE_TEST_DIR/$TEST_NAME"
-  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TMP" "$_remote_report_dir" "$REMOTE_ERROR_FILE"
-  _list_pods_contents "$_cluster_namespace" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"
-  _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME" "$REPORT_ARGS" "$_jmeter_args"
-  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$_remote_report_dir" "$_remote_results_file" "$REMOTE_LOG_FILE" "$REMOTE_ERROR_FILE" "$_root_dir/kubernetes/tmp"
-  _download_server_logs "$_cluster_namespace" "$_local_server_logs_dir" "$REMOTE_SERVER_LOG_FILE" "${SLAVE_PODS_ARRAY[@]}"
+  _clean_pods "$_cluster_namespace" "$MASTER_POD" "$_remote_test_dir" "$_remote_shared_mount" "${PODS_ARRAY[@]}"
+  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$_root_dir" "$_remote_shared_mount" "$_jmeter_data_dir"
+  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$_root_dir/$_jmeter_scenario" "$_remote_test_dir/$_jmx_file_name"
+  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$_remote_tmp" "$_remote_report_dir" "$_remote_error_file"
+  _list_pods_contents "$_cluster_namespace" "$_remote_test_dir" "$_remote_shared_mount" "${PODS_ARRAY[@]}"
+  _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$_jmx_file_name" "$_report_args" "$_jmeter_user_args"
+  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$_remote_report_dir" "$_remote_results_file" "$_remote_log_file" "$_remote_error_file" "$_root_dir/kubernetes/tmp"
+  _download_server_logs "$_cluster_namespace" "$_local_server_logs_dir" "$_remote_server_log_file" "${SLAVE_PODS_ARRAY[@]}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
