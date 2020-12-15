@@ -4,11 +4,9 @@ _prepare_env() { #public: prepares env for execution, sets MASTER_POD
   local _cluster_namespace=$1
   local _local_report_dir=$2
   local _server_logs_dir=$3
-  #delete evicted pods first
-  kubectl get pods -n "$_cluster_namespace" --field-selector 'status.phase==Failed' -o json | kubectl delete -f -
-  MASTER_POD=$(kubectl get po -n "$_cluster_namespace" | grep Running | grep jmeter-master | awk '{print $1}')
-  #create necessary dirs
-  mkdir -p "$_local_report_dir" "$_server_logs_dir"
+  kubectl get pods -n "$_cluster_namespace" --field-selector 'status.phase==Failed' -o json | kubectl delete -f - #delete evicted pods
+  MASTER_POD=$(kubectl get po -n "$_cluster_namespace" | grep Running | grep jmeter-master | awk '{print $1}') #set master pod globally
+  mkdir -p "$_local_report_dir" "$_server_logs_dir" #creates dirs
 }
 
 _get_slave_pods() { #public: sets SLAVE_PODS_ARRAY
@@ -143,7 +141,7 @@ jmeter() {
   REMOTE_SHARED_MOUNT="/shared"
   REMOTE_ERROR_FILE="errors.xml"
   REMOTE_RESULTS_FILE="results.csv"
-  REPORT_ARGS="-o $REMOTE_TMP/$REPORT_DIR -l $REMOTE_TMP/$REMOTE_RESULTS_FILE -e"
+  REPORT_ARGS="-o $REMOTE_TMP/$REMOTE_REPORT_DIR -l $REMOTE_TMP/$REMOTE_RESULTS_FILE -e"
 
   _prepare_env "$_cluster_namespace" "$LOCAL_REPORT_DIR" "$LOCAL_SERVER_LOGS_DIR "                        #sets MASTER_POD and created dirs
   _get_pods "$_cluster_namespace"                                                                         #sets PODS_ARRAY
