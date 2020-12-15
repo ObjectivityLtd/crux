@@ -70,7 +70,7 @@ _copy_jmx_to_master_pod() { #public: copies .jmx file to test folder /test at ma
   local _local_jmx_path=$3/$4
   local _remote_jmx_path=$5/$6
 
-  kubectl cp "$_local_jmx" -n "$_cluster_namespace" "$_master_pod:/$_remote_jmx_path"
+  kubectl cp "$_local_jmx_path" -n "$_cluster_namespace" "$_master_pod:/$_remote_jmx_path"
 }
 
 _clean_master_pod() { #public: resets folders used in tests
