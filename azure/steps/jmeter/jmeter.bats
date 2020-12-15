@@ -90,25 +90,6 @@ setup(){
   unset mkdir
 }
 
-@test "UT: _set_variables sets all variables" {
-  pwd(){
-    echo "$test_tmp_dir"
-  }
-  export -f pwd
-  _set_variables 1 2 3 4 args
-  [ -n "$JMX" ]
-  [ -n "$USER_ARGS" ]
-  [ -n "$ROOT_DIR" ]
-  [ -n "$LOCAL_REPORT_DIR" ]
-  [ -n "$LOCAL_SERVER_LOGS_DIR" ]
-  [ -n "$REPORT_DIR" ]
-  [ -n "$TMP" ]
-  [ -n "$REPORT_ARGS" ]
-  [ -n "$TEST_NAME" ]
-  [ -n "$SHARED_MOUNT" ]
-
-  unset pwd
-}
 
 @test "UT: _clean_pods removes csv, py and jmx files" {
   kubectl(){
@@ -147,6 +128,6 @@ setup(){
   _download_server_logs(){ echo "__mock";}
   export -f _set_variables _prepare_env _get_pods _get_slave_pods _clean_pods _copy_data_to_shared_drive _copy_jmx_to_master_pod _clean_master_pod _list_pods_contents _run_jmeter_test _download_test_results _download_server_logs
   run jmeter
-  CALL_NUMBER=12
+  CALL_NUMBER=11
   [ "$(echo "$output" | grep "__mock" | wc -l)" -eq $CALL_NUMBER ]
 }

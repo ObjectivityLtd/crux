@@ -1,21 +1,5 @@
 #!/usr/bin/env bash
-
-function _set_variables() { #public: sets shared variables for the script
-  JMX="$1"
-  USER_ARGS="$2"
-  ROOT_DIR="$(pwd)/../../../"
-  LOCAL_REPORT_DIR="$ROOT_DIR/kubernetes/tmp/report"
-  LOCAL_SERVER_LOGS_DIR="$ROOT_DIR/kubernetes/tmp/server_logs"
-  REPORT_DIR=report
-  TEST_DIR=/test
-  TMP=/tmp
-  TEST_NAME="$(basename "$ROOT_DIR/$JMX")"
-  SHARED_MOUNT="/shared"
-  ERROR_FILE="errors.xml"
-  RESULTS_FILE="results.csv"
-  REPORT_ARGS="-o $TMP/$REPORT_DIR -l $TMP/$RESULTS_FILE -e"
-}
-
+set -x
 _prepare_env() { #public: prepares env for execution, sets MASTER_POD
   local _cluster_namespace=$1
   local _local_report_dir=$2
@@ -149,19 +133,30 @@ jmeter() {
   local _jmeter_data_dir="$3"
   local _jmeter_args="$4"
   #set vars
-  _set_variables "$_jmeter_scenario" "$_jmeter_args"
+  ROOT_DIR="$(pwd)/../../../"
+  LOCAL_REPORT_DIR="$ROOT_DIR/kubernetes/tmp/report"
+  LOCAL_SERVER_LOGS_DIR="$ROOT_DIR/kubernetes/tmp/server_logs"
+  REMOTE_REPORT_DIR=report
+  REMOTE_TEST_DIR=/test
+  REMOTE_TMP=/tmp
+  TEST_NAME="$(basename "$ROOT_DIR/$_jmeter_scenario")"
+  REMOTE_SHARED_MOUNT="/shared"
+  REMOTE_ERROR_FILE="errors.xml"
+  REMOTE_RESULTS_FILE="results.csv"
+  REPORT_ARGS="-o $REMOTE_TMP/$REPORT_DIR -l $REMOTE_TMP/$REMOTE_RESULTS_FILE -e"
+
   _prepare_env "$_cluster_namespace" "$LOCAL_REPORT_DIR" "$LOCAL_SERVER_LOGS_DIR "                        #sets MASTER_POD and created dirs
   _get_pods "$_cluster_namespace"                                                                         #sets PODS_ARRAY
   _get_slave_pods "$_cluster_namespace"                                                                   #sets SLAVE_PODS_ARRAY
   #test flow
-  _clean_pods "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}"          #OK
-  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$SHARED_MOUNT" "$_jmeter_data_dir"  #OK
-  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$JMX" "$TEST_DIR" "$TEST_NAME" #OK
-  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$TEST_DIR" "$TMP" "$REPORT_DIR" "$ERROR_FILE"    #OK
-  _list_pods_contents "$_cluster_namespace" "$TEST_DIR" "$SHARED_MOUNT" "${PODS_ARRAY[@]}"                #OK
-  _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME" "$REPORT_ARGS" "$USER_ARGS"
-  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$REPORT_DIR" "$TMP" "$ROOT_DIR"
-  _download_server_logs "$_cluster_namespace" "$LOCAL_SERVER_LOGS_DIR" "$TEST_DIR" "${SLAVE_PODS_ARRAY[@]}"
+  _clean_pods "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"          #OK
+  _copy_data_to_shared_drive "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$REMOTE_SHARED_MOUNT" "$_jmeter_data_dir"  #OK
+  _copy_jmx_to_master_pod "$_cluster_namespace" "$MASTER_POD" "$ROOT_DIR" "$_jmeter_scenario" "$REMOTE_TEST_DIR" "$TEST_NAME" #OK
+  _clean_master_pod "$_cluster_namespace" "$MASTER_POD" "$REMOTE_TEST_DIR" "$REMOTE_TMP" "$REMOTE_REPORT_DIR" "$REMOTE_ERROR_FILE"    #OK
+  _list_pods_contents "$_cluster_namespace" "$REMOTE_TEST_DIR" "$REMOTE_SHARED_MOUNT" "${PODS_ARRAY[@]}"                #OK
+  _run_jmeter_test "$_cluster_namespace" "$MASTER_POD" "$TEST_NAME" "$REPORT_ARGS" "$_jmeter_args"
+  _download_test_results "$_cluster_namespace" "$MASTER_POD" "$REMOTE_REPORT_DIR" "$REMOTE_TMP" "$ROOT_DIR"
+  _download_server_logs "$_cluster_namespace" "$LOCAL_SERVER_LOGS_DIR" "$REMOTE_TEST_DIR" "${SLAVE_PODS_ARRAY[@]}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
