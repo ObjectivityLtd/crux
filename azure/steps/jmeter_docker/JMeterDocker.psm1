@@ -45,8 +45,5 @@ function Start-JmeterTest($ContainerName, $JMXPath,$UserArgs,$FixedArgs){
   Write-Host "##[command] sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t ${JMXPath} ${UserArgs} ${FixedArgs}"
   Start-CommandInsideDocker $ContainerName "sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t ${JMXPath} ${UserArgs} ${FixedArgs}"
 }
-function Stop-JMeterTest($ContainerName){
-  Write-Host "##[command] sh /jmeter/apache-jmeter-*/bin/jmeter.sh }"
-  Start-CommandInsideDocker $ContainerName "sh /jmeter/apache-jmeter-*/bin/stoptest.sh "
-}
+
 Export-ModuleMember -function *
