@@ -10,7 +10,7 @@ steps:
         -Image "gabrielstar/crux-master:0.0.1"
         -ContainerName "crux$(Build.BuildId)"
         -JMXPathOnAgent $(_crux_repos_root)/$(_crux_jmeter_scenario)
-        -TestDataDirOnAgent $(_crux_repos_root)/$(_crux_data_dir)
+        -TestDataDirOnAgent $(System.DefaultWorkingDirectory)/$(_crux_repos_root)/$(_crux_data_dir)
         -ContainerTestDataDir=/test
         -UserArgs "$(_crux_jmeter_args)"
       filePath: $(_crux_steps_path)/jmeter_docker/JMeterDocker.ps1
