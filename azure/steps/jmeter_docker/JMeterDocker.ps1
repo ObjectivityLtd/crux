@@ -41,7 +41,6 @@ function Execute-JMeterTests()
 {
 
   Clear-Host
-  Stop-JMeterContainer -ContainerName $ContainerName
   Start-JMeterContainer -RootPath $RootPath -Image $Image -ContainerName $ContainerName -TestDataDir ${PSScriptRoot}/test_data
   Start-SimpleTableServer -ContainerName $ContainerName -DataSetDirectory /test -SleepSeconds 2
   Show-TestDirectory -ContainerName $ContainerName -Directory /test_data
