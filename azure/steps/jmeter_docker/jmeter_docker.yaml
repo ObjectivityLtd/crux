@@ -7,7 +7,7 @@ steps:
     condition: and(succeeded(), not(eq(variables.jmeter_tests, false)))
     inputs:
       arguments: > # Use this to avoid newline characters in multiline string
-        -Image "gabrielstar/crux:0.0.1"
+        -Image "gabrielstar/crux-master:0.0.1"
         -ContainerName "_crux_$(Build.BuildId)"
       filePath: $(_crux_steps_path)/jmeter_docker/JMeterDocker.ps1
       pwsh: true

@@ -1,6 +1,6 @@
 param(
   $RootPath="$PSScriptRoot",
-  $Image="gabrielstar/crux:0.0.1",
+  $Image="gabrielstar/crux-master:0.0.1",
   $ContainerName="_crux"
 )
 function Start-JMeterContainer($RootPath, $Image, $ContainerName, $TestDataDir)
@@ -12,26 +12,29 @@ function Start-JMeterContainer($RootPath, $Image, $ContainerName, $TestDataDir)
   docker run -d `
           --name ${ContainerName} `
           --entrypoint tail `
-          --volume ${TestDataDir}:/test_data gabrielstar/${Image} `
+          --volume ${TestDataDir}:/test_data ${Image} `
           -f /dev/null
   Write-Host "Started container ${ContainerName} "
   docker ps -a --no-trunc --filter name=^/${ContainerName}$
 }
-function Show-TestDirectory($Directory){
+function Execute-CommandInsideDocker($ContainerName, $Command){
+  docker exec $ContainerName sh -c "${Command}"
+}
+function Show-TestDirectory($ContainerName,$Directory){
   Write-Host "Directory ${Directory}:"
-  docker exec crx sh -c "ls $Directory"
+  Execute-CommandInsideDocker $ContainerName "ls $Directory"
 }
 function Start-SimpleTableServer($ContainerName, $DataSetDirectory, $SleepSeconds){
   $stsCommand="screen -A -m -d -S sts /jmeter/apache-jmeter-*/bin/simple-table-server.sh -DjmeterPlugin.sts.addTimestamp=true -DjmeterPlugin.sts.datasetDirectory=${DataSetDirectory}"
   Start-Sleep -Seconds $SleepSeconds
-  docker exec $ContainerName sh -c "${stsCommand}"
+  Execute-CommandInsideDocker $ContainerName "${stsCommand}"
 }
 function Start-JmeterTest($ContainerName, $JMXPath,$UserArgs,$FixedArgs){
   Write-Host "##[command] sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t ${JMXPath} ${UserArgs} ${FixedArgs}"
-  docker exec $ContainerName sh -c "sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t ${JMXPath} ${UserArgs} ${FixedArgs}"
+  Execute-CommandInsideDocker $ContainerName "sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t ${JMXPath} ${UserArgs} ${FixedArgs}"
 }
 Clear-Host
 Start-JMeterContainer -RootPath $RootPath -Image $Image -ContainerName $ContainerName -TestDataDir ${PSScriptRoot}/test_data
-Start-SimpleTableServer -ContainerName crx -DataSetDirectory /test -SleepSeconds 2
-Show-TestDirectory -ContainerName crx -DataSetDirectory /test_data
-Start-JmeterTest -ContainerName crx -JMXPath /test_data/test_table_server.jmx -UserArgs '-Jthreads=10' -FixedArgs '-Gchromedriver=/usr/bin/chromedriver -q /test/user.properties'
+Start-SimpleTableServer -ContainerName $ContainerName -DataSetDirectory /test -SleepSeconds 2
+Show-TestDirectory -ContainerName $ContainerName -DataSetDirectory /test_data
+Start-JmeterTest -ContainerName $ContainerName -JMXPath /test_data/test_table_server.jmx -UserArgs '-Jthreads=10' -FixedArgs '-Gchromedriver=/usr/bin/chromedriver -q /test/user.properties'
