@@ -5,8 +5,8 @@ param(
 )
 function Stop-JMeterContainer($ContainerName){
   Write-Host "Cleaning container $ContainerName if running ..."
-  docker stop $ContainerName >$null
-  docker rm $ContainerName >$null
+  $output=docker stop $ContainerName
+  $output=docker rm $ContainerName
 }
 
 function Start-JMeterContainer($RootPath, $Image, $ContainerName, $TestDataDir)
@@ -41,6 +41,7 @@ function Execute-JMeterTests()
 {
 
   Clear-Host
+  Stop-JMeterContainer -ContainerName $ContainerName
   Start-JMeterContainer -RootPath $RootPath -Image $Image -ContainerName $ContainerName -TestDataDir ${PSScriptRoot}/test_data
   Start-SimpleTableServer -ContainerName $ContainerName -DataSetDirectory /test -SleepSeconds 2
   Show-TestDirectory -ContainerName $ContainerName -Directory /test_data
