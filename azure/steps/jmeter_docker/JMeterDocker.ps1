@@ -4,9 +4,16 @@ param(
   $ContainerName="crux"
 )
 function Stop-JMeterContainer($ContainerName){
-  Write-Host "Cleaning container $ContainerName if running ..."
-  docker stop $ContainerName >$null 2>&1
-  docker rm $ContainerName >$null 2>&1
+  Write-Host "Checking if container $ContainerName if running ..."
+  $out = docker ps -a --no-trunc --filter name=^/${ContainerName}$ | Out-String
+  if( $out -like "*${ContainerName}*" )
+  {
+    Write-Host "Container $ContainerName running. Attempting to stop it ..."
+    docker stop $ContainerName
+    docker rm $ContainerName
+  }else{
+    Write-Host "Container $ContainerName not running ..."
+  }
 }
 
 function Start-JMeterContainer($RootPath, $Image, $ContainerName, $TestDataDir)
@@ -37,9 +44,7 @@ function Start-JmeterTest($ContainerName, $JMXPath,$UserArgs,$FixedArgs){
   Execute-CommandInsideDocker $ContainerName "sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t ${JMXPath} ${UserArgs} ${FixedArgs}"
 }
 
-function Execute-JMeterTests()
-{
-
+function Execute-JMeterTests() {
   Clear-Host
   Stop-JMeterContainer -ContainerName $ContainerName
   Start-JMeterContainer -RootPath $RootPath -Image $Image -ContainerName $ContainerName -TestDataDir ${PSScriptRoot}/test_data
