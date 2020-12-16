@@ -1,20 +1,21 @@
 param(
   $RootPath="$PSScriptRoot",
-  $Image="gabrielstar/crux:0.0.1"
+  $Image="gabrielstar/crux:0.0.1",
+  $ContainerName="_crux"
 )
-function Start-JMeterContainer($RootPath, $Image, $TestDataDir)
+function Start-JMeterContainer($RootPath, $Image, $ContainerName, $TestDataDir)
 {
-  Write-Host "Cleaning container if running"
-  docker stop crx
-  docker rm crx
-  Write-Host "Starting container ${Image}"
+  Write-Host "Cleaning container $ContainerName if running ..."
+  docker stop $ContainerName | Out-Null
+  docker rm $ContainerName | Out-Null
+  Write-Host "Starting container ${ContainerName} from ${Image} ..."
   docker run -d `
-          --name crx `
+          --name ${ContainerName} `
           --entrypoint tail `
-          --volume ${TestDataDir}:/test_data gabrielstar/crux-master:0.0.1 `
+          --volume ${TestDataDir}:/test_data gabrielstar/${Image} `
           -f /dev/null
-  Write-Host "Started container: "
-  docker ps -a --no-trunc --filter name=^/crx$
+  Write-Host "Started container ${ContainerName} "
+  docker ps -a --no-trunc --filter name=^/${ContainerName}$
 }
 function Show-TestDirectory($Directory){
   Write-Host "Directory ${Directory}:"
@@ -26,11 +27,11 @@ function Start-SimpleTableServer($ContainerName, $DataSetDirectory, $SleepSecond
   docker exec $ContainerName sh -c "${stsCommand}"
 }
 function Start-JmeterTest($ContainerName, $JMXPath,$UserArgs,$FixedArgs){
-  Write-Host "Running: sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t ${JMXPath} ${UserArgs} ${FixedArgs}"
+  Write-Host "##[command] sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t ${JMXPath} ${UserArgs} ${FixedArgs}"
   docker exec $ContainerName sh -c "sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t ${JMXPath} ${UserArgs} ${FixedArgs}"
 }
 Clear-Host
-Start-JMeterContainer -RootPath $RootPath -Image $Image -TestDataDir ${PSScriptRoot}/test_data
+Start-JMeterContainer -RootPath $RootPath -Image $Image -ContainerName $ContainerName -TestDataDir ${PSScriptRoot}/test_data
 Start-SimpleTableServer -ContainerName crx -DataSetDirectory /test -SleepSeconds 2
 Show-TestDirectory -ContainerName crx -DataSetDirectory /test_data
 Start-JmeterTest -ContainerName crx -JMXPath /test_data/test_table_server.jmx -UserArgs '-Jthreads=10' -FixedArgs '-Gchromedriver=/usr/bin/chromedriver -q /test/user.properties'

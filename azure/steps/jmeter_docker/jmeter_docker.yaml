@@ -8,5 +8,6 @@ steps:
     inputs:
       arguments: > # Use this to avoid newline characters in multiline string
         -Image "gabrielstar/crux:0.0.1"
+        -ContainerName "_crux_$(Build.BuildId)"
       filePath: $(_crux_steps_path)/jmeter_docker/jmeter_docker.ps1
       pwsh: true
