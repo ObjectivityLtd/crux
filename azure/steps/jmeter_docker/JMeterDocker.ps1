@@ -5,8 +5,8 @@ param(
 )
 function Stop-JMeterContainer($ContainerName){
   Write-Host "Cleaning container $ContainerName if running ..."
-  $output=docker stop $ContainerName
-  $output=docker rm $ContainerName
+  docker stop $ContainerName>$null 2>&1
+  docker rm $ContainerName>$null 2>&1
 }
 
 function Start-JMeterContainer($RootPath, $Image, $ContainerName, $TestDataDir)
