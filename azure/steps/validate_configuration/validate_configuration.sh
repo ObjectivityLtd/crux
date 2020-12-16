@@ -18,6 +18,8 @@ validate_configuration() {
         check_k8_connection=true
       elif [ "$mode" == 'tests' ];then
         check_dockerhub_connection=true
+      elif [ "$mode" == 'agent' ];then
+        : #nothing required
       else
         echo "##[error] Unrecognized mode. Use one of jmeter|jmeter_dynamic|tests. [$link]"
         echo "##vso[task.complete result=Failed]current operation"
