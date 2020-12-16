@@ -22,7 +22,8 @@ function Start-JMeterTests() {
   Show-TestDirectory -ContainerName $ContainerName -Directory $ContainerTestDataDir
   Start-JmeterTest -ContainerName $ContainerName -JMXPath $ContainerTestDataDir/$testName -UserArgs $UserArgs -FixedArgs $FixedArgs
   Show-TestDirectory -ContainerName $ContainerName -Directory $ContainerTestDataDir
-  Stop-JMeterTest -ContainerName $ContainerName
   Start-CommandInsideDocker $ContainerName "ls -alh /test"
+  Stop-JMeterContainer -ContainerName $ContainerName
+
 }
 Start-JMeterTests
