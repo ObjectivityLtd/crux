@@ -123,6 +123,12 @@
         <stringProp name="filename"></stringProp>
       </ResultCollector>
       <hashTree/>
+      <org.jmeterplugins.protocol.http.control.HttpSimpleTableControl guiclass="org.jmeterplugins.protocol.http.control.gui.HttpSimpleTableControlGui" testclass="org.jmeterplugins.protocol.http.control.HttpSimpleTableControl" testname="jp@gc - HTTP Simple Table Server" enabled="true">
+        <stringProp name="HttpSimpleTableControlGui.port">9191</stringProp>
+        <boolProp name="HttpSimpleTableControlGui.timestamp">true</boolProp>
+        <stringProp name="HttpSimpleTableControlGui.dir">C:\Users\gstarczewski\repos\performance\jmeter_azure_k8_boilerplate\azure\steps\jmeter_docker\test_data</stringProp>
+      </org.jmeterplugins.protocol.http.control.HttpSimpleTableControl>
+      <hashTree/>
     </hashTree>
   </hashTree>
 </jmeterTestPlan>

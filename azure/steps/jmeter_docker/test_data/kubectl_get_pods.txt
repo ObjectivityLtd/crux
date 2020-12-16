@@ -1,4 +1,0 @@
-NAME                             READY   STATUS    RESTARTS   AGE
-jmeter-master-84cdf76f56-fbgtx   1/1     Running   0          4h21m
-jmeter-slaves-6495546c95-fzdn5   1/1     Running   0          4h21m
-jmeter-slaves-6495546c95-vcsjg   1/1     Running   0          4h21m
