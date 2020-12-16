@@ -1,0 +1,22 @@
+parameters:
+  timeoutInMinutes: 5
+steps:
+  - bash: |
+      echo ${{ parameters.mode }}
+      echo "Creating dummy data: report_dir"
+      mkdir -p $(_crux_report_dir)
+      echo "Creating dummy data: jmeter.log, results.csv, report"
+      touch $(_crux_log) $(_crux_server_logs_dir) $(_crux_errors) $(_crux_report_dir)/index.html
+      test_data_path=azure/steps/test_data
+      cp $test_data_path/statistics.json $(_crux_report_dir)/
+      cp $test_data_path/thresholds.properties $(_crux_thresholds_file)
+      cp $test_data_path/workbooks.e2e.properties $(_crux_workbooks_file)
+      cp -R $test_data_path/results.csv $(_crux_results)
+      ls -alh $(_crux_mock_dir)
+
+      echo "module.junit.enabled:$(module.junit.enabled)"
+      echo "module.workbooks.enabled:$(module.junit.enabled)"
+
+    condition: and(succeeded(), not(eq(variables.jmeter_tests, false)))
+    displayName: JMeter tests (mocked)
+    timeoutInMinutes: ${{ parameters.timeoutInMinutes }}

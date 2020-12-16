@@ -19,7 +19,6 @@ steps:
       awk -F= '{print "echo ##vso[task.setvariable variable="$1"]"$2}' $(_crux_properties_file) >> vars.txt && cat vars.txt
 
 
-
     displayName: PREPARE tests (mocked)
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     condition: and(succeeded(), not(eq(variables.prepare_tests, false)))
