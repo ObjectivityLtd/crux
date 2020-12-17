@@ -11,8 +11,7 @@ param(
 )
 Import-Module $PSScriptRoot\JMeterDocker.psm1 -Force
 
-#split folders /shared and /test to keep all settings
-function Start-JMeterTests() {
+function Start-JMeterTests($RootPath, $Image, $ContainerName, $JMXPathOnAgent,$TestDataDirOnAgent,$ContainerTestDataDir,$UserArgs,$FixedArgs,$SleepSeconds) {
   $testName = Split-Path $JMXPathOnAgent -leaf
   Clear-Host
   Copy-Item $JMXPathOnAgent $TestDataDirOnAgent
@@ -22,8 +21,16 @@ function Start-JMeterTests() {
   Show-TestDirectory -ContainerName $ContainerName -Directory $ContainerTestDataDir
   Start-JmeterTest -ContainerName $ContainerName -JMXPath $ContainerTestDataDir/$testName -UserArgs $UserArgs -FixedArgs $FixedArgs
   Show-TestDirectory -ContainerName $ContainerName -Directory $ContainerTestDataDir
-  Start-CommandInsideDocker $ContainerName "ls -alh /test"
+  Start-CommandInsideDocker $ContainerName "ls -alh /$ContainerTestDataDir"
   Stop-JMeterContainer -ContainerName $ContainerName
 
 }
-Start-JMeterTests
+Start-JMeterTests -RootPath $RootPath `
+                  -Image $Image `
+                  -ContainerName $ContainerName `
+                  -JMXPathOnAgent $JMXPathOnAgent `
+                  -TestDataDirOnAgent $TestDataDirOnAgent `
+                  -ContainerTestDataDir $ContainerTestDataDir `
+                  -UserArgs $UserArgs `
+                  -FixedArgs $FixedArgs `
+                  -SleepSeconds $SleepSeconds
