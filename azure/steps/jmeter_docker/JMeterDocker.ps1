@@ -14,7 +14,7 @@ Import-Module $PSScriptRoot\JMeterDocker.psm1 -Force
 
 function Copy-Artifacts($ArtifactsDirectory, $TestDataDirOnAgent)
 {
-    Copy-Item $TestDataDirOnAgent/report $ArtifactsDirectory
+    Copy-Item $TestDataDirOnAgent/report $ArtifactsDirectory -Recurse
     Copy-Item $TestDataDirOnAgent/jmeter.log $ArtifactsDirectory
     Copy-Item $TestDataDirOnAgent/results.csv $ArtifactsDirectory
     Copy-Item $TestDataDirOnAgent/errors.xml $ArtifactsDirectory
