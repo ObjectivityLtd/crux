@@ -30,6 +30,7 @@ variables:
     _crux_properties_file: $(_crux_tests_repo_name)/$(_crux_properties_file_relative)
     _crux_thresholds_file: $(_crux_tests_repo_name)/$(_crux_thresholds_file_relative)
     _crux_workbooks_file: $(_crux_tests_repo_name)/$(_crux_workbooks_file_relative)
+    _crux_tmp_dir: kubernetes/tmp/
     _crux_report_dir: kubernetes/tmp/report
     _crux_server_logs_dir: kubernetes/tmp/server_logs
     _crux_results: kubernetes/tmp/results.csv
