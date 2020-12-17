@@ -22,7 +22,6 @@ function Start-JMeterTests($RootPath, $Image, $ContainerName, $JMXPathOnAgent, $
     Show-TestDirectory -ContainerName $ContainerName -Directory $ContainerTestDataDir
     Start-JmeterTest -ContainerName $ContainerName -JMXPath $ContainerTestDataDir/$testName -UserArgs $UserArgs -FixedArgs $FixedArgs
     Show-TestDirectory -ContainerName $ContainerName -Directory $ContainerTestDataDir
-    Start-CommandInsideDocker $ContainerName "ls -alh $ContainerTestDataDir"
     Stop-JMeterContainer -ContainerName $ContainerName
     Copy-Artifacts -ArtifactsDirectory $ArtifactsDirectory `
                -TestDataDirOnAgent $TestDataDirOnAgent
