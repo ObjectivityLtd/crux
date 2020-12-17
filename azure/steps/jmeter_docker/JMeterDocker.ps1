@@ -44,4 +44,4 @@ Start-JMeterTests -RootPath $RootPath `
                   -SleepSeconds $SleepSeconds
 
 Copy-Artifacts -ArtifactsDirectory $ArtifactsDirectory `
-               -TestDirOnAgent $TestDataDirOnAgent
+               -TestDataDirOnAgent $TestDataDirOnAgent
