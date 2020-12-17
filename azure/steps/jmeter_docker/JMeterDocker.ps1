@@ -12,17 +12,9 @@ param(
 )
 Import-Module $PSScriptRoot\JMeterDocker.psm1 -Force
 
-function Copy-Artifacts($ArtifactsDirectory, $TestDataDirOnAgent)
-{
-    Copy-Item $TestDataDirOnAgent/report $ArtifactsDirectory -Recurse
-    Copy-Item $TestDataDirOnAgent/jmeter.log $ArtifactsDirectory
-    Copy-Item $TestDataDirOnAgent/results.csv $ArtifactsDirectory
-    Copy-Item $TestDataDirOnAgent/errors.xml $ArtifactsDirectory
-}
-function Start-JMeterTests($RootPath, $Image, $ContainerName, $JMXPathOnAgent, $TestDataDirOnAgent, $ContainerTestDataDir, $UserArgs, $FixedArgs, $SleepSeconds)
+function Start-JMeterTests($RootPath, $Image, $ContainerName, $JMXPathOnAgent, $TestDataDirOnAgent, $ContainerTestDataDir, $UserArgs, $FixedArgs, $SleepSeconds, $ArtifactsDirectory)
 {
     $testName = Split-Path $JMXPathOnAgent -leaf
-    Clear-Host
     Copy-Item $JMXPathOnAgent $TestDataDirOnAgent
     Stop-JMeterContainer -ContainerName $ContainerName
     Start-JMeterContainer -RootPath $RootPath -Image $Image -ContainerName $ContainerName -TestDataDir $TestDataDirOnAgent -ContainerTestDataDir $ContainerTestDataDir
@@ -32,6 +24,8 @@ function Start-JMeterTests($RootPath, $Image, $ContainerName, $JMXPathOnAgent, $
     Show-TestDirectory -ContainerName $ContainerName -Directory $ContainerTestDataDir
     Start-CommandInsideDocker $ContainerName "ls -alh $ContainerTestDataDir"
     Stop-JMeterContainer -ContainerName $ContainerName
+    Copy-Artifacts -ArtifactsDirectory $ArtifactsDirectory `
+               -TestDataDirOnAgent $TestDataDirOnAgent
 }
 Start-JMeterTests -RootPath $RootPath `
                   -Image $Image `
@@ -41,7 +35,6 @@ Start-JMeterTests -RootPath $RootPath `
                   -ContainerTestDataDir $ContainerTestDataDir `
                   -UserArgs $UserArgs `
                   -FixedArgs $FixedArgs `
-                  -SleepSeconds $SleepSeconds
+                  -SleepSeconds $SleepSeconds `
+                  -ArtifactsDirectory $ArtifactsDirectory
 
-Copy-Artifacts -ArtifactsDirectory $ArtifactsDirectory `
-               -TestDataDirOnAgent $TestDataDirOnAgent
