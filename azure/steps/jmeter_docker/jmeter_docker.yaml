@@ -1,5 +1,6 @@
 parameters:
   timeoutInMinutes: 5
+  image: "gabrielstar/crux-master:0.0.1"
 steps:
   - task: PowerShell@2
     displayName: JMeter tests (docker)
@@ -7,7 +8,7 @@ steps:
     condition: and(succeeded(), not(eq(variables.jmeter_tests, false)))
     inputs:
       arguments: > # Use this to avoid newline characters in multiline string
-        -Image "gabrielstar/crux-master:0.0.1"
+        -Image "${{ parameters.image }}"
         -ContainerName "crux$(Build.BuildId)"
         -JMXPathOnAgent $(_crux_repos_root)/$(_crux_jmeter_scenario)
         -TestDataDirOnAgent $(System.DefaultWorkingDirectory)/$(_crux_repos_root)/$(_crux_data_dir)
