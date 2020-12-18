@@ -88,7 +88,7 @@ Describe "Script Tests" {
             $ArtifactsDirectory = "$TestDrive/tmp"
             $JMXPathOnAgent = "$PSScriptRoot/test_jmx/test_table_server.jmx"
             $ContainerTestDataDir='/test'
-            $FixedArgs= "-o $ContainerTestDataDir/report -f -l $ContainerTestDataDir/results.csv -e -Gsts=localhost -Gchromedriver=/usr/bin/chromedriver"
+            $FixedArgs= "-o $ContainerTestDataDir/report/ -f -l $ContainerTestDataDir/results.csv -e -Gsts=localhost -Gchromedriver=/usr/bin/chromedriver"
             Write-Host "Results will be stored in $(GetFullPath $TestDrive/tmp)"
             Start-JMeterTests `
                   -Image $Image `
