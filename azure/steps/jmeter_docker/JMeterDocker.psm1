@@ -27,7 +27,7 @@ function Start-JMeterContainer($Image, $ContainerName, $TestDataDir, $ContainerT
   Write-Host "Started container ${ContainerName} "
   docker ps -a --no-trunc --filter name=^/${ContainerName}$
   Start-CommandInsideDocker $ContainerName "touch /test/errors.xml" #file should be there even if no errors
-
+  Start-CommandInsideDocker $ContainerName "mdkir -p /test/report"
 }
 function Start-CommandInsideDocker($ContainerName, $Command){
   docker exec $ContainerName sh -c "${Command}"
