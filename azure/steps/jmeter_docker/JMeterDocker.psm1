@@ -16,7 +16,7 @@ function Stop-JMeterContainer($ContainerName){
   }
 }
 
-function Start-JMeterContainer($RootPath, $Image, $ContainerName, $TestDataDir, $ContainerTestDataDir)
+function Start-JMeterContainer($Image, $ContainerName, $TestDataDir, $ContainerTestDataDir)
 {
   Write-Host "Starting container ${ContainerName} from ${Image} ..."
   docker run -d `
