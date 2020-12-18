@@ -128,21 +128,21 @@ teardown_file(){
 
 }
 
-#@test "IT: Docker Base Image Builds Successfully" {
-#  docker image rm "$TEST_IMAGE_NAME" ||:
-#  run docker build --rm --no-cache -t "$TEST_IMAGE_NAME" -f Dockerfile .
-#  assert_output --partial "Successfully built"
-#  assert_success
-#}
-#
-#@test "IT: Docker Master Image Builds Successfully" {
-#  docker image rm "$TEST_IMAGE_NAME_MASTER" ||:
-#  run docker build -t "$TEST_IMAGE_NAME_MASTER" -f Dockerfile-master .
-#  assert_success
-#}
-#
-#@test "IT: Docker Slave Image Builds Successfully" {
-#  docker image rm "$TEST_IMAGE_NAME_SLAVE" ||:
-#  run docker build -t "$TEST_IMAGE_NAME_SLAVE" -f Dockerfile-slave .
-#  assert_success
-#}
+@test "IT: Docker Base Image Builds Successfully" {
+  docker image rm "$TEST_IMAGE_NAME" ||:
+  run docker build --rm --no-cache -t "$TEST_IMAGE_NAME" -f Dockerfile .
+  assert_output --partial "Successfully built"
+  assert_success
+}
+
+@test "IT: Docker Master Image Builds Successfully" {
+  docker image rm "$TEST_IMAGE_NAME_MASTER" ||:
+  run docker build -t "$TEST_IMAGE_NAME_MASTER" -f Dockerfile-master .
+  assert_success
+}
+
+@test "IT: Docker Slave Image Builds Successfully" {
+  docker image rm "$TEST_IMAGE_NAME_SLAVE" ||:
+  run docker build -t "$TEST_IMAGE_NAME_SLAVE" -f Dockerfile-slave .
+  assert_success
+}
