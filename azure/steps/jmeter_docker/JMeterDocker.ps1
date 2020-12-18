@@ -5,7 +5,7 @@ param(
     $TestDataDirOnAgent = "${PSScriptRoot}/test_data",
     $ContainerTestDataDir = "/test",
     $UserArgs = "-Jthreads=10 -Jloops=10",
-    $FixedArgs = "-o $ContainerTestDataDir/report -f -l $ContainerTestDataDir/results.csv -e -Gsts=localhost -Gchromedriver=/usr/bin/chromedriver",
+    $FixedArgs = "-o $ContainerTestDataDir/report/ -f -l $ContainerTestDataDir/results.csv -e -Gsts=localhost -Gchromedriver=/usr/bin/chromedriver",
     $SleepSeconds = 2,
     $ArtifactsDirectory = "$PSScriptRoot/../../../kubernetes/tmp",
     $SkipRun = $FALSE
