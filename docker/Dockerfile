@@ -1,15 +1,20 @@
 #CREDIT: This is taken from https://github.com/markhobson/docker-maven-chrome/blob/master/jdk-8/Dockerfile
-#Chrome as headless browser
-FROM markhobson/maven-chrome@sha256:4920ac5cf3d6061fcd994ce5da5bb557280fc43da953afabbb8b6804bfd2869e
+#Chrome as headless browser - v 87
+FROM markhobson/maven-chrome@sha256:e5013aa2b127134e0f8f35e82528b6fc24d14b768a110e557fa53f07e202f755
+#args
+ARG JMETER_VERSION=5.4
+ARG JMETER_INSTALLATION_DIR=/jmeter
+ARG JMETER_DIR=$JMETER_INSTALLATION_DIR/apache-jmeter-$JMETER_VERSION
+ARG CONTAINER_JMETER_TEST_DIR=/test
+#setting /test dir as default jmeter dir amd copy test files for docker unit tests
+RUN mkdir $CONTAINER_JMETER_TEST_DIR
+#should replace .py test with .groovy test?
+COPY test_data/*.py $CONTAINER_JMETER_TEST_DIR/
+COPY test_data/*.jmx $CONTAINER_JMETER_TEST_DIR/
+COPY test_data/*.csv $CONTAINER_JMETER_TEST_DIR/
+WORKDIR $CONTAINER_JMETER_TEST_DIR
 
-#adding groovy and pythion support
-
-RUN mkdir test
-COPY test_data/test.py test/
-COPY test_data/*.jmx test/
-COPY test_data/*.csv test/
-
-WORKDIR /test
+#replace python test with groovy?
 #PIP, PIP LIBS for test,tools
 RUN wget https://bootstrap.pypa.io/get-pip.py \
     && python get-pip.py \
@@ -17,8 +22,6 @@ RUN wget https://bootstrap.pypa.io/get-pip.py \
 	&& apt-get update -qqy \
 	&& apt-get -qqy install vim groovy curl
 
-#adding jmeter on top of this
-ARG JMETER_VERSION=5.3
 RUN apt-get clean && \
     apt-get update && \
     apt-get -qy install \
@@ -27,23 +30,40 @@ RUN apt-get clean && \
     screen \
     iputils-ping \
     unzip
-RUN mkdir /jmeter \
-    && cd /jmeter/ \
+
+#installing jmeter to /jmeter
+RUN mkdir $JMETER_INSTALLATION_DIR \
+    && cd $JMETER_INSTALLATION_DIR \
     && wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-$JMETER_VERSION.tgz \
     && tar -xzf apache-jmeter-$JMETER_VERSION.tgz \
     && rm apache-jmeter-$JMETER_VERSION.tgz
 
-RUN cd /jmeter/apache-jmeter-$JMETER_VERSION/ && wget -q -O /tmp/JMeterPlugins-Standard-1.4.0.zip https://jmeter-plugins.org/downloads/file/JMeterPlugins-Standard-1.4.0.zip && unzip -n /tmp/JMeterPlugins-Standard-1.4.0.zip && rm /tmp/JMeterPlugins-Standard-1.4.0.zip
-RUN wget -q -O /jmeter/apache-jmeter-$JMETER_VERSION/lib/ext/pepper-box-1.0.jar https://github.com/raladev/load/blob/master/JARs/pepper-box-1.0.jar?raw=true
-RUN cd /jmeter/apache-jmeter-$JMETER_VERSION/ && wget -q -O /tmp/bzm-parallel-0.7.zip https://jmeter-plugins.org/files/packages/bzm-parallel-0.7.zip && unzip -n /tmp/bzm-parallel-0.7.zip && rm /tmp/bzm-parallel-0.7.zip
-#adding selenium support
-RUN cd /jmeter/apache-jmeter-$JMETER_VERSION/ && wget -q -O /tmp/jpgc-webdriver-3.1.zip https://jmeter-plugins.org/files/packages/jpgc-webdriver-3.1.zip && unzip -n /tmp/jpgc-webdriver-3.1.zip && rm /tmp/jpgc-webdriver-3.1.zip
-RUN cd /jmeter/apache-jmeter-$JMETER_VERSION/ && wget -q -O /tmp/jpgc-sts-2.4.zip https://jmeter-plugins.org/files/packages/jpgc-sts-2.4.zip && unzip -n /tmp/jpgc-sts-2.4.zip && rm /tmp/jpgc-sts-2.4.zip
-#addign azure backend listener
-RUN wget -q -O /jmeter/apache-jmeter-$JMETER_VERSION/lib/ext/jmeter.backendlistener.azure-0.2.2.jar https://github.com/adrianmo/jmeter-backend-azure/releases/download/0.2.2/jmeter.backendlistener.azure-0.2.2.jar
+#plugins
+ARG JMETER_PLUGINS_STANDARD_VERSION=1.4.0
+RUN cd $JMETER_DIR/ && wget -q -O /tmp/JMeterPlugins-Standard.zip https://jmeter-plugins.org/downloads/file/JMeterPlugins-Standard-$JMETER_PLUGINS_STANDARD_VERSION.zip \
+                     && unzip -n /tmp/JMeterPlugins-Standard.zip \
+                     && rm /tmp/JMeterPlugins-Standard.zip
 
+ARG JMETER_PLUGINS_BZM_PARALLEL_VERSION=0.8
+RUN cd $JMETER_DIR/ && wget -q -O /tmp/bzm-parallel.zip https://jmeter-plugins.org/files/packages/bzm-parallel-$JMETER_PLUGINS_BZM_PARALLEL_VERSION.zip \
+                    && unzip -n /tmp/bzm-parallel.zip \
+                    && rm /tmp/bzm-parallel.zip
 
-ENV JMETER_HOME /jmeter/apache-jmeter-$JMETER_VERSION/
+#3.3
+ARG JMETER_PLUGINS_WEBDRIVER_VERSION=3.3
+RUN cd $JMETER_DIR/ && wget -q -O /tmp/jpgc-webdriver.zip https://jmeter-plugins.org/files/packages/jpgc-webdriver-$JMETER_PLUGINS_WEBDRIVER_VERSION.zip \
+                    && unzip -n /tmp/jpgc-webdriver.zip \
+                    && rm /tmp/jpgc-webdriver.zip
 
+ARG JMETER_PLUGINS_STS_VERSION=2.4
+RUN cd $JMETER_DIR/ && wget -q -O /tmp/jpgc-sts.zip https://jmeter-plugins.org/files/packages/jpgc-sts-$JMETER_PLUGINS_STS_VERSION.zip \
+                    && unzip -n /tmp/jpgc-sts.zip \
+                     && rm /tmp/jpgc-sts.zip
+
+ARG JMETER_PLUGINS_AZURE_BACKEND_LISTENER_VERSION=0.2.3
+RUN wget -q -O $JMETER_DIR/lib/ext/jmeter.backendlistener.azure-$JMETER_PLUGINS_AZURE_BACKEND_LISTENER_VERSION.jar \
+            https://github.com/adrianmo/jmeter-backend-azure/releases/download/$JMETER_PLUGINS_AZURE_BACKEND_LISTENER_VERSION/jmeter.backendlistener.azure-$JMETER_PLUGINS_AZURE_BACKEND_LISTENER_VERSION.jar
+
+ENV JMETER_HOME $JMETER_DIR/
 ENV PATH $JMETER_HOME/bin:$PATH
 ENV JVM_ARGS -Xms1G -Xmx4G
