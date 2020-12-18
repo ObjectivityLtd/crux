@@ -75,7 +75,21 @@ Describe "Script Tests" {
         }
     }
     Context "When Start-JMeterTests is run without mocks" -Tag E2E {
+
         BeforeAll {
+            function GetFullPath {
+                param(
+                    [string] $Path
+                )
+                return $Path.Replace('TestDrive:', (Get-PSDrive TestDrive).Root)
+            }
+
+            $TestDataDirOnAgent = "$PSScriptRoot/test_data"
+            $ArtifactsDirectory = "$TestDrive/tmp"
+            $JMXPathOnAgent = "$PSScriptRoot/test_jmx/test_table_server.jmx"
+            $ContainerTestDataDir='/test'
+            $FixedArgs= "-o $ContainerTestDataDir/report -f -l $ContainerTestDataDir/results.csv -e -Gsts=localhost -Gchromedriver=/usr/bin/chromedriver"
+            Write-Host "Results will be stored in $(GetFullPath $TestDrive/tmp)"
             Start-JMeterTests `
                   -Image $Image `
                   -ContainerName $ContainerName `
@@ -88,18 +102,46 @@ Describe "Script Tests" {
                   -ArtifactsDirectory $ArtifactsDirectory `
                   -SkipRun $FALSE
         }
-        It "should  execute Write-Host with Skipped message"  {
-            $TRUE
+        AfterAll {
+            Write-Host "Artifacts produced at $TestDrive/tmp : $(Get-ChildItem -Path $TestDrive/tmp)"
+        }
+        It "test file artifacts should be created"  {
+            $artifacts=@('report','jmeter.log','errors.xml','results.csv')
+            foreach($artifact in $artifacts)
+            {
+                "$ArtifactsDirectory/$artifact"| Should -Exist
+            }
+        }
+        It "jmeter.log and results.csv should not be empty"  {
+            $artifacts=@('jmeter.log','results.csv')
+            foreach($artifact in $artifacts)
+            {
+                Get-Content -Path "$ArtifactsDirectory/$artifact"| Should -Not -BeNullOrEmpty
+            }
+        }
+        It "no errors should be logged to errors.xml"  {
+            Get-Content -Path "$ArtifactsDirectory/errors.xml"| Should -BeNullOrEmpty
         }
     }
 }
 
-Describe "Module Tests" {
-        BeforeAll {
-        }
+Describe "Module Tests" -Tag ModuleTests{
         It "should Copy-Artifacts execute Copy-Item 4 times exactly"  {
             Mock Copy-Item
             Copy-Artifacts
             Assert-MockCalled Copy-Item -Scope It -Times 4 -Exactly
         }
+        It "should Start-JmeterTest execute correct jmeter command with proper args"  {
+            Mock Start-CommandInsideDocker {
+                Write-Host $Command
+                return $Command
+            }
+            Start-JmeterTest -ContainerName crux `
+                            -JMXPath /test/test.jmx `
+                            -UserArgs 'userargs' `
+                            -FixedArgs 'fixedargs' `
+                | Should -Be 'sh /jmeter/apache-jmeter-*/bin/jmeter.sh -n -t /test/test.jmx userargs fixedargs'
+
+        }
+
 }

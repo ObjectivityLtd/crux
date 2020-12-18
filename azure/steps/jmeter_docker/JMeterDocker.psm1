@@ -47,7 +47,7 @@ function Start-JmeterTest($ContainerName, $JMXPath,$UserArgs,$FixedArgs){
 }
 function Copy-Artifacts($ArtifactsDirectory, $TestDataDirOnAgent)
 {
-  Copy-Item $TestDataDirOnAgent/report $ArtifactsDirectory -Recurse
+  Copy-Item $TestDataDirOnAgent/report $ArtifactsDirectory/report -Recurse
   Copy-Item $TestDataDirOnAgent/jmeter.log $ArtifactsDirectory
   Copy-Item $TestDataDirOnAgent/results.csv $ArtifactsDirectory
   Copy-Item $TestDataDirOnAgent/errors.xml $ArtifactsDirectory
