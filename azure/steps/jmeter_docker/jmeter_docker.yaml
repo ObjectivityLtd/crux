@@ -12,7 +12,7 @@ steps:
         -ContainerName "crux$(Build.BuildId)"
         -JMXPathOnAgent $(_crux_repos_root)/$(_crux_jmeter_scenario)
         -TestDataDirOnAgent $(System.DefaultWorkingDirectory)/$(_crux_repos_root)/$(_crux_data_dir)
-        -ContainerTestDataDir="$(_crux_remote_test_dir)"
+        -ContainerTestDataDir "$(_crux_remote_test_dir)"
         -UserArgs "$(_crux_jmeter_args)"
         -ArtifactsDirectory "$(System.DefaultWorkingDirectory)/$(_crux_tmp_dir)"
       filePath: $(_crux_steps_path)/jmeter_docker/JMeterDocker.ps1
