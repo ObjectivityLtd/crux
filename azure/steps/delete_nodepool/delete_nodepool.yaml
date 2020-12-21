@@ -1,9 +1,9 @@
 parameters:
-  mode: jmeter
+  mode: on_build_agent
   timeoutInMinutes: 5
 
 steps:
-  - ${{ if and(ne(parameters.mode,'tests'),ne(parameters.mode,'jmeter_dynamic')) }}:
+  - ${{ if and(ne(parameters.mode,'tests'),ne(parameters.mode,'on_aks_created_for_each_test_run')) }}:
     - task: AzureCLI@2
       condition: and(always(), not(eq(variables._crux_delete_nodepool, false)))
       displayName: Delete dedicated nodepool
@@ -14,7 +14,7 @@ steps:
         scriptPath: $(_crux_steps_path)/delete_nodepool/delete_nodepool.sh
         arguments: crux$(Build.BuildID) $(_crux_cluster_name) $(_crux_cluster_resource_group)
 
-  - ${{ if and(ne(parameters.mode,'tests'),eq(parameters.mode,'jmeter_dynamic')) }}: #dynamic cluster name _crux_created_cluster_name becomes available:
+  - ${{ if and(ne(parameters.mode,'tests'),eq(parameters.mode,'on_aks_created_for_each_test_run')) }}: #dynamic cluster name _crux_created_cluster_name becomes available:
       - task: AzureCLI@2
         condition: and(always(), not(eq(variables._crux_delete_nodepool, false)))
         displayName: Delete dedicated nodepool

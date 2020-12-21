@@ -74,7 +74,7 @@ variables:
     _crux_jmeter_slave_deploy_file: ""
     _crux_aks_agent_pool: ""
 
-  ${{ if eq(parameters.mode,'jmeter') }}:
+  ${{ if eq(parameters.mode,'on_aks') }}:
     ${{ if ne(True,variables['_crux_create_cluster']) }}:
       _crux_create_cluster: false
     ${{ if ne(True,variables['_crux_delete_cluster']) }}:
@@ -87,7 +87,7 @@ variables:
     _crux_jmeter_slave_deploy_file: "jmeter_slaves_deploy.yaml"
     _crux_aks_agent_pool: ""
 
-  ${{ if eq(parameters.mode,'jmeter_with_dynamic_pools') }}:
+  ${{ if eq(parameters.mode,'on_aks_pool_created_for_each_test_run') }}:
     ${{ if ne(True,variables['_crux_create_cluster']) }}:
       _crux_create_cluster: false
     ${{ if ne(True,variables['_crux_delete_cluster']) }}:
@@ -96,7 +96,7 @@ variables:
     _crux_jmeter_slave_deploy_file: "jmeter_slaves_deploy_required.yaml"
     _crux_aks_agent_pool: crux$(Build.BuildID)
 
-  ${{ if eq(parameters.mode,'jmeter_dynamic') }}:
+  ${{ if eq(parameters.mode,'on_aks_created_for_each_test_run') }}:
     ${{ if ne(True,variables['_crux_configure_cluster']) }}:
       _crux_configure_cluster: false
     ${{ if ne(True,variables['_crux_create_namespace']) }}:

@@ -9,19 +9,19 @@ validate_configuration() {
       check_dockerhub_connection=false
 
       echo "You have chosen to run CRUX in '$mode' mode."
-      if [ "$mode" == 'jmeter' ];then
+      if [ "$mode" == 'on_aks' ];then
         check_k8_connection=true
-      elif [ "$mode" == 'jmeter_dynamic' ];then
+      elif [ "$mode" == 'on_aks_created_for_each_test_run' ];then
         check_arm_connection=true
-      elif [ "$mode" == 'jmeter_with_dynamic_pools' ];then
+      elif [ "$mode" == 'on_aks_pool_created_for_each_test_run' ];then
         check_arm_connection=true
         check_k8_connection=true
       elif [ "$mode" == 'tests' ];then
         check_dockerhub_connection=true
-      elif [ "$mode" == 'agent' ];then
+      elif [ "$mode" == 'on_build_agent' ];then
         : #nothing required
       else
-        echo "##[error] Unrecognized mode. Use one of jmeter|jmeter_dynamic|tests. [$link]"
+        echo "##[error] Unrecognized mode. Use one of jmeter|on_aks_created_for_each_test_run|tests. [$link]"
         echo "##vso[task.complete result=Failed]current operation"
       fi
       if [ "$check_arm_connection" == "true" ];then

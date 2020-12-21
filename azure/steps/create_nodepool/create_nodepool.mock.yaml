@@ -1,5 +1,5 @@
 parameters:
-  mode: jmeter
+  mode: on_build_agent
   timeoutInMinutes: 10
 
 steps:

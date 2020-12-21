@@ -1,9 +1,9 @@
 parameters:
-  mode: jmeter
+  mode: on_build_agent
   timeoutInMinutes: 10
 
 steps:
-  - ${{ if and(ne(parameters.mode,'tests'),ne(parameters.mode,'jmeter_dynamic')) }}:
+  - ${{ if and(ne(parameters.mode,'tests'),ne(parameters.mode,'on_aks_created_for_each_test_run')) }}:
     - task: AzureCLI@2
       displayName: Create dedicated nodepool
       condition: and(succeeded(), not(eq(variables._crux_create_nodepool, false)))
@@ -15,7 +15,7 @@ steps:
         arguments: $(_crux_aks_agent_pool) $(_crux_cluster_name) crux.usage jmeter $(_crux_cluster_resource_group) $(_crux_cluster_jmeter_slaves_replicas) $(_crux_cluster_node_size)
                    #nodepool_name       #cluster_name   #crux_label #crux_label_value #resource_group #scale_up_replicas #node_size
 
-  - ${{ if and(ne(parameters.mode,'tests'),eq(parameters.mode,'jmeter_dynamic')) }}: #dynamic cluster name _crux_created_cluster_name becomes available
+  - ${{ if and(ne(parameters.mode,'tests'),eq(parameters.mode,'on_aks_created_for_each_test_run')) }}: #dynamic cluster name _crux_created_cluster_name becomes available
       - task: AzureCLI@2
         displayName: Create dedicated nodepool
         timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
